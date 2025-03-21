@@ -1,0 +1,75 @@
+It's showing the login page but there is no register for new users, this is how the login page should look like.
+
+After you finish with the login page please impplement the next step
+
+Pas 2: Modelarea bazei de date PostgreSQL
+Creează următoarele modele (tabele) folosind Sequelize:
+1. Model User:
+   - id (PK, autoincrement)
+   - email (string, unic, obligatoriu)
+   - password (string, obligatoriu)
+   - role (enum ['doctor', 'patient'], obligatoriu)
+   - firstName (string, obligatoriu)
+   - lastName (string, obligatoriu)
+   - createdAt (timestamp)
+   - updatedAt (timestamp)
+
+2. Model PatientProfile:
+   - id (PK, autoincrement)
+   - userId (FK referință la User, pentru pacient)
+   - doctorId (FK referință la User, pentru medic)
+   - age (integer)
+   - cnp (string, unic)
+   - address (text)
+   - phoneNumber (string)
+   - email (string)
+   - profession (string)
+   - workplace (string)
+   - medicalHistory (text)
+   - allergies (text)
+   - consultations (text)
+   - isActive (boolean, default true)
+   - createdAt (timestamp)
+   - updatedAt (timestamp)
+
+3. Model Recommendation:
+   - id (PK, autoincrement)
+   - patientProfileId (FK referință la PatientProfile)
+   - type (string)
+   - description (text)
+   - createdAt (timestamp)
+   - updatedAt (timestamp)
+
+4. Model Parameter:
+   - id (PK, autoincrement)
+   - patientProfileId (FK referință la PatientProfile)
+   - ecg (float)
+   - humidity (float)
+   - temperature (float)
+   - pulse (float)
+   - timestamp (timestamp)
+
+5. Model ParameterLimit:
+   - id (PK, autoincrement)
+   - patientProfileId (FK referință la PatientProfile)
+   - parameterName (string, ex: 'ecg', 'humidity', 'temperature', 'pulse')
+   - minValue (float)
+   - maxValue (float)
+   - updatedAt (timestamp)
+
+6. Model Alert:
+   - id (PK, autoincrement)
+   - patientProfileId (FK referință la PatientProfile)
+   - parameterName (string)
+   - value (float)
+   - status (string, ex: 'active', 'acknowledged')
+   - timestamp (timestamp)
+
+Definește relațiile între tabele:
+- User (doctor) poate avea mulți PatientProfile
+- PatientProfile aparține unui singur User (doctor)
+- PatientProfile aparține unui singur User (pacient)
+- PatientProfile poate avea multe Recommendation
+- PatientProfile poate avea multe Parameter
+- PatientProfile poate avea multe ParameterLimit
+- PatientProfile poate avea multe Alert

@@ -1,0 +1,55 @@
+the login/register interface is OK and it matches the screenshot I provided.
+You also created to much tables in the data base
+I've told you to create only these tables: User, PatientProfile, Recommendation, Parameter, ParameterLimit and Alert
+The tables activities, appointments and departments are not needed
+
+After you finished fixing and implementing above requirements please proceed and focus on the implementation of below requirements:
+Pas 3: Implementarea sistemului de autentificare și înregistrare
+Creează:
+1. API-uri pentru înregistrare pentru ambele tipuri de utilizatori (medic și pacient)
+2. Creează pagini React pentru:
+   - Înregistrare (cu opțiuni pentru tipul de utilizator)
+   - Autentificare
+   - Pagină de redirecționare după autentificare către dashboard-ul corespunzător rolului
+   
+   
+Pas 4: Implementarea funcționalităților pentru medici
+Backend:
+1. Creează API-uri pentru:
+   - Obținerea listei de pacienți alocați medicului curent
+   - Adăugarea unui nou profil de pacient (asociat cu un user existent de tip pacient)
+   - Actualizarea profilului unui pacient
+   - Ștergerea logică a unui pacient din lista medicului
+   - Crearea și actualizarea recomandărilor
+   - Setarea limitelor pentru parametri
+   - Obținerea parametrilor și alertelor pentru un pacient
+
+Frontend:
+1. Creează componente React pentru:
+   - Dashboard-ul medicului cu lista de pacienți
+   - Formular pentru adăugarea unui nou pacient (cu dropdown pentru selectarea utilizatorilor de tip pacient inregistrati in sistem)
+   - Pagină de vizualizare detaliată a profilului pacientului
+   - Formular pentru editarea profilului pacientului
+   - Interfață pentru adăugarea și editarea recomandărilor
+   - Interfață pentru setarea limitelor parametrilor
+   - Vizualizarea grafică a parametrilor monitorizați
+   - Vizualizarea și gestionarea alertelor
+   
+
+Pas 5: Implementarea funcționalităților pentru pacienți
+Backend:
+1. Creează API-uri pentru:
+   - Obținerea propriului profil de pacient
+   - Obținerea recomandărilor asociate
+   - Obținerea parametrilor monitorizați
+   - Obținerea alertelor
+
+Frontend:
+1. Creează componente React pentru:
+   - Dashboard-ul pacientului
+   - Vizualizarea propriului profil medical
+   - Vizualizarea recomandărilor primite
+   - Vizualizarea grafică a parametrilor monitorizați
+   - Vizualizarea istoricului de alerte
+
+I've attached an example on how the medic's dashboard should look like please implemeant all the above features

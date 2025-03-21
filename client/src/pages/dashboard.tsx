@@ -136,17 +136,19 @@ const Dashboard = () => {
     onSuccess: async (data) => {
       const profileId = data.profile.id;
       
-      // Create initial parameter record for the patient
-      const initialParameter = {
+      // Create 3 initial parameter records for the patient
+      const initialParameters = Array(3).fill(null).map(() => ({
         patientProfileId: profileId,
-        ecg: Math.floor(Math.random() * 15) + 70, // Random value between 70-85
-        humidity: Math.floor(Math.random() * 20) + 40, // Random value between 40-60
-        temperature: 36.5 + (Math.random() * 1.5), // Random value around normal body temp
-        pulse: Math.floor(Math.random() * 15) + 65, // Random value between 65-80
-      };
+        ecg: Math.floor(Math.random() * 15) + 70,
+        humidity: Math.floor(Math.random() * 20) + 40,
+        temperature: 36.5 + (Math.random() * 1.5),
+        pulse: Math.floor(Math.random() * 15) + 65,
+      }));
       
-      // Create parameter record
-      await apiRequest('/api/parameters', 'POST', initialParameter);
+      // Create parameter records
+      for (const parameter of initialParameters) {
+        await apiRequest('/api/parameters', 'POST', parameter);
+      }
 
       // Create recommendation
       const recommendation = {

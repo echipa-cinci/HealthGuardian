@@ -21,7 +21,7 @@ export interface IStorage {
   getPatientProfile(id: number): Promise<PatientProfile | undefined>;
   getPatientProfileByUserId(userId: number): Promise<PatientProfile | undefined>;
   getPatientProfiles(limit?: number, offset?: number): Promise<PatientProfile[]>;
-  getPatientProfilesForDoctor(doctorId: number, limit?: number, offset?: number): Promise<PatientProfile[]>;
+  getPatientProfilesForDoctor(doctorId: number, limit?: number, offset?: number): Promise<any[]>;
   createPatientProfile(patientProfile: InsertPatientProfile): Promise<PatientProfile>;
   updatePatientProfile(id: number, patientProfile: Partial<InsertPatientProfile>): Promise<PatientProfile | undefined>;
   getPatientProfilesCount(): Promise<number>;
@@ -95,38 +95,38 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(patientProfiles.createdAt));
   }
 
-  async getPatientProfilesForDoctor(doctorId: number, limit: number = 10, offset: number = 0): Promise<PatientProfile[]> {
-    const result = await db
-      .select({
-        id: patientProfiles.id,
-        userId: patientProfiles.userId,
-        doctorId: patientProfiles.doctorId,
-        age: patientProfiles.age,
-        cnp: patientProfiles.cnp,
-        address: patientProfiles.address,
-        phoneNumber: patientProfiles.phoneNumber,
-        email: patientProfiles.email,
-        profession: patientProfiles.profession,
-        workplace: patientProfiles.workplace,
-        medicalHistory: patientProfiles.medicalHistory,
-        allergies: patientProfiles.allergies,
-        consultations: patientProfiles.consultations,
-        isActive: patientProfiles.isActive,
-        createdAt: patientProfiles.createdAt,
-        updatedAt: patientProfiles.updatedAt,
-      })
+  async getPatientProfilesForDoctor(doctorId: number, limit: number = 10, offset: number = 0): Promise<any[]> {
+    // Get patient profiles assigned to this doctor
+    const profiles = await db
+      .select()
       .from(patientProfiles)
-      .where(
-        or(
-          eq(patientProfiles.doctorId, doctorId),
-          isNull(patientProfiles.doctorId)
-        )
-      )
+      .where(eq(patientProfiles.doctorId, doctorId))
       .limit(limit)
-      .offset(offset)
-      .orderBy(desc(patientProfiles.createdAt));
+      .offset(offset);
 
-    return result;
+    // Get user data for each patient
+    const enhancedProfiles = [];
+    for (const profile of profiles) {
+      if (profile.userId) {
+        const user = await this.getUser(profile.userId);
+        if (user) {
+          enhancedProfiles.push({
+            ...profile,
+            user: {
+              id: user.id,
+              email: user.email,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              role: user.role
+            }
+          });
+          continue;
+        }
+      }
+      enhancedProfiles.push(profile);
+    }
+
+    return enhancedProfiles;
   }
 
   async createPatientProfile(insertPatientProfile: InsertPatientProfile): Promise<PatientProfile> {

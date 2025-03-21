@@ -677,12 +677,6 @@ const Dashboard = () => {
           </Card>
         </div>
       </div>
-      <div>
-        <h1>Dashboard</h1>
-        <p>Patient Count: {dashboardStats?.patientCount}</p>
-        <p>Appointment Count: {dashboardStats?.appointmentCount}</p>
-        <p>Unread Messages: {dashboardStats?.unreadMessagesCount}</p>
-      </div>
     </main>
   );
 };

@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,30 +9,48 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { format } from "date-fns";
 import { Plus, Search } from "lucide-react";
+import { Link } from "wouter";
+
 const Patients = () => {
   const [page, setPage] = useState(1);
   const limit = 10;
+  
+  // Get current user info (doctor)
+  const { data: authData } = useQuery({
+    queryKey: ['/api/auth/status'],
+    queryFn: async () => {
+      const res = await fetch('/api/auth/status');
+      if (!res.ok) throw new Error('Failed to fetch auth status');
+      return res.json();
+    }
+  });
+
   const { data: patients, isLoading } = useQuery({
     queryKey: ['/api/patients', page, limit],
     queryFn: async () => {
       const res = await fetch(`/api/patients?limit=${limit}&offset=${(page - 1) * limit}`);
       if (!res.ok) throw new Error('Failed to fetch patients');
       return res.json();
-    }
+    },
+    enabled: !!authData?.authenticated
   });
+
   const { data: countData } = useQuery({
     queryKey: ['/api/patients/count'],
     queryFn: async () => {
       const res = await fetch('/api/patients/count');
       if (!res.ok) throw new Error('Failed to fetch patient count');
       return res.json();
-    }
+    },
+    enabled: !!authData?.authenticated
   });
+
   const totalPages = countData ? Math.ceil(countData.count / limit) : 0;
   const [search, setSearch] = useState('');
   const filteredPatients = patients?.filter(patient =>
-    `${patient.firstName} ${patient.lastName}`.toLowerCase().includes(search.toLowerCase())
+    `${patient.user?.firstName} ${patient.user?.lastName}`.toLowerCase().includes(search.toLowerCase())
   ) || [];
+
   return (
     <main className="flex-1 overflow-y-auto bg-neutral-light p-6">
       <div className="max-w-7xl mx-auto">
@@ -67,6 +86,7 @@ const Patients = () => {
                   <TableHead>Phone</TableHead>
                   <TableHead>Date of Birth</TableHead>
                   <TableHead>Added</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -78,21 +98,27 @@ const Patients = () => {
                       <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                       <TableCell><Skeleton className="h-6 w-24" /></TableCell>
                       <TableCell><Skeleton className="h-6 w-24" /></TableCell>
+                      <TableCell><Skeleton className="h-6 w-24" /></TableCell>
                     </TableRow>
                   ))
                 ) : filteredPatients.length > 0 ? (
                   filteredPatients.map((patient) => (
                     <TableRow key={patient.id}>
-                      <TableCell className="font-medium">{patient.firstName} {patient.lastName}</TableCell>
-                      <TableCell>{patient.email}</TableCell>
-                      <TableCell>{patient.phone}</TableCell>
+                      <TableCell className="font-medium">{patient.user?.firstName} {patient.user?.lastName}</TableCell>
+                      <TableCell>{patient.user?.email || patient.email}</TableCell>
+                      <TableCell>{patient.phoneNumber}</TableCell>
                       <TableCell>{patient.dateOfBirth ? format(new Date(patient.dateOfBirth), 'MMM d, yyyy') : 'N/A'}</TableCell>
                       <TableCell>{format(new Date(patient.createdAt), 'MMM d, yyyy')}</TableCell>
+                      <TableCell>
+                        <Link href={`/patient/${patient.id}`}>
+                          <Button variant="outline" size="sm">View Details</Button>
+                        </Link>
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-4">No patients found</TableCell>
+                    <TableCell colSpan={6} className="text-center py-4">No patients found</TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -142,4 +168,5 @@ const Patients = () => {
     </main>
   );
 };
+
 export default Patients;

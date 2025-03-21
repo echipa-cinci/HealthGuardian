@@ -4,18 +4,30 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StatCard from "@/components/dashboard/stat-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { 
-    Form, 
-    FormControl, 
-    FormField, 
-    FormItem, 
-    FormLabel, 
-    FormMessage 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -40,7 +52,9 @@ const patientProfileSchema = z.object({
   consultations: z.string().optional(),
   // Add recommendation fields
   recommendationType: z.string().min(1, "Recommendation type is required"),
-  recommendationDescription: z.string().min(1, "Recommendation description is required"),
+  recommendationDescription: z
+    .string()
+    .min(1, "Recommendation description is required"),
 });
 
 type PatientProfileFormValues = z.infer<typeof patientProfileSchema>;
@@ -85,91 +99,107 @@ const Dashboard = () => {
 
   // Get stats
   const { data: stats, isLoading: isLoadingStats } = useQuery<DashboardStats>({
-    queryKey: ['/api/stats/dashboard'],
+    queryKey: ["/api/stats/dashboard"],
   });
 
   // Get current user info (doctor)
   const { data: authData } = useQuery<AuthData>({
-    queryKey: ['/api/auth/status'],
+    queryKey: ["/api/auth/status"],
   });
 
   // Get patients count
-  const { data: patientsCount = 0, isLoading: isLoadingPatientsCount } = useQuery<number>({
-    queryKey: ['/api/patients/count'],
-  });
+  const { data: patientsCount = 0, isLoading: isLoadingPatientsCount } =
+    useQuery<number>({
+      queryKey: ["/api/patients/count"],
+    });
 
   // Get patient users (role = 'patient')
-  const { data: patientUsers = [], isLoading: isLoadingPatientUsers } = useQuery<User[]>({
-    queryKey: ['/api/users/role/patient'],
-    queryFn: async () => {
-      const res = await fetch('/api/users/role/patient');
-      if (!res.ok) throw new Error('Failed to fetch patient users');
-      return res.json();
-    },
-  });
+  const { data: patientUsers = [], isLoading: isLoadingPatientUsers } =
+    useQuery<User[]>({
+      queryKey: ["/api/users/role/patient"],
+      queryFn: async () => {
+        const res = await fetch("/api/users/role/patient");
+        if (!res.ok) throw new Error("Failed to fetch patient users");
+        return res.json();
+      },
+    });
 
   // Get patients list
-  const { data: patients = [], isLoading: isLoadingPatients } = useQuery<PatientProfile[]>({
-    queryKey: ['/api/patients'],
+  const { data: patients = [], isLoading: isLoadingPatients } = useQuery<
+    PatientProfile[]
+  >({
+    queryKey: ["/api/patients"],
   });
 
   // Create patient profile mutation
   const createPatientProfile = useMutation({
-    mutationFn: async (data: PatientProfileFormValues & { doctorId: number }) => {
+    mutationFn: async (
+      data: PatientProfileFormValues & { doctorId: number },
+    ) => {
       // Extract recommendation data before sending the patient profile data
-      const { recommendationType, recommendationDescription, ...patientProfileData } = data;
+      const {
+        recommendationType,
+        recommendationDescription,
+        ...patientProfileData
+      } = data;
 
       // Convert userId to a number
       const patientData = {
         ...patientProfileData,
-        userId: parseInt(patientProfileData.userId as string, 10)
+        userId: parseInt(patientProfileData.userId as string, 10),
       };
 
       // Create patient profile first
-      const response = await apiRequest('/api/patient-profiles', 'POST', patientData);
-      return { 
+      const response = await apiRequest(
+        "/api/patient-profiles",
+        "POST",
+        patientData,
+      );
+      return {
         profile: response,
         recommendationType,
-        recommendationDescription 
+        recommendationDescription,
       };
     },
     onSuccess: async (data) => {
       const profileId = data.profile.id;
-      
+
       // Create 3 initial parameter records for the patient
-      const initialParameters = Array(3).fill(null).map(() => ({
-        patientProfileId: profileId,
-        ecg: Math.floor(Math.random() * 15) + 70,
-        humidity: Math.floor(Math.random() * 20) + 40,
-        temperature: 36.5 + (Math.random() * 1.5),
-        pulse: Math.floor(Math.random() * 15) + 65,
-      }));
-      
+      const initialParameters = Array(3)
+        .fill(null)
+        .map(() => ({
+          patientProfileId: profileId,
+          ecg: Math.floor(Math.random() * 15) + 70,
+          humidity: Math.floor(Math.random() * 20) + 40,
+          temperature: 36.5 + Math.random() * 1.5,
+          pulse: Math.floor(Math.random() * 15) + 65,
+        }));
+
       // Create parameter records
       for (const parameter of initialParameters) {
-        await apiRequest('/api/parameters', 'POST', parameter);
+        await apiRequest("/api/parameters", "POST", parameter);
       }
 
       // Create recommendation
       const recommendation = {
         patientProfileId: profileId,
         type: data.recommendationType,
-        description: data.recommendationDescription
+        description: data.recommendationDescription,
       };
-      
-      await apiRequest('/api/recommendations', 'POST', recommendation);
-      
+
+      await apiRequest("/api/recommendations", "POST", recommendation);
+
       // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['/api/patients'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/patients/count'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/stats/dashboard'] });
-      
+      queryClient.invalidateQueries({ queryKey: ["/api/patients"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/patients/count"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats/dashboard"] });
+
       toast({
         title: "Success",
         description: "Patient has been added successfully with recommendations",
         variant: "default",
       });
-      
+
       setIsAddPatientOpen(false);
     },
     onError: (error: Error) => {
@@ -197,8 +227,8 @@ const Dashboard = () => {
       allergies: "",
       consultations: "",
       recommendationType: "",
-      recommendationDescription: "", 
-    }
+      recommendationDescription: "",
+    },
   });
 
   const onSubmit = (values: PatientProfileFormValues) => {
@@ -218,15 +248,19 @@ const Dashboard = () => {
     });
   };
 
-  const { data: dashboardStats, isLoading, error } = useQuery({
-    queryKey: ['/api/stats/dashboard'],
+  const {
+    data: dashboardStats,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["/api/stats/dashboard"],
     queryFn: async () => {
-      const res = await fetch('/api/stats/dashboard');
+      const res = await fetch("/api/stats/dashboard");
       if (!res.ok) {
-        throw new Error('Failed to fetch dashboard stats');
+        throw new Error("Failed to fetch dashboard stats");
       }
       return res.json();
-    }
+    },
   });
 
   if (isLoading) {
@@ -241,7 +275,9 @@ const Dashboard = () => {
     <main className="flex-1 overflow-y-auto bg-neutral-light">
       <div className="py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 className="text-2xl font-semibold text-gray-900">Doctor Dashboard</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">
+            Doctor Dashboard
+          </h1>
           <Dialog open={isAddPatientOpen} onOpenChange={setIsAddPatientOpen}>
             <DialogTrigger asChild>
               <Button variant="default">Add Patient</Button>
@@ -251,15 +287,18 @@ const Dashboard = () => {
                 <DialogTitle>Add New Patient</DialogTitle>
               </DialogHeader>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
                   <FormField
                     control={form.control}
                     name="userId"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Select Patient User</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
+                        <Select
+                          onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
@@ -268,7 +307,7 @@ const Dashboard = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {patientUsers.map(user => (
+                            {patientUsers.map((user) => (
                               <SelectItem key={user.id} value={String(user.id)}>
                                 {user.firstName} {user.lastName} ({user.email})
                               </SelectItem>
@@ -338,7 +377,7 @@ const Dashboard = () => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="email"
@@ -353,7 +392,7 @@ const Dashboard = () => {
                       )}
                     />
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -368,7 +407,7 @@ const Dashboard = () => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="workplace"
@@ -425,18 +464,20 @@ const Dashboard = () => {
                       </FormItem>
                     )}
                   />
-                  
+
                   <div className="border-t pt-6 mt-6">
-                    <h3 className="text-lg font-medium mb-4">Doctor's Recommendation</h3>
-                    
+                    <h3 className="text-lg font-medium mb-4">
+                      Doctor's Recommendation
+                    </h3>
+
                     <FormField
                       control={form.control}
                       name="recommendationType"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Recommendation Type</FormLabel>
-                          <Select 
-                            onValueChange={field.onChange} 
+                          <Select
+                            onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
                             <FormControl>
@@ -447,9 +488,15 @@ const Dashboard = () => {
                             <SelectContent>
                               <SelectItem value="Diet">Diet</SelectItem>
                               <SelectItem value="Exercise">Exercise</SelectItem>
-                              <SelectItem value="Medication">Medication</SelectItem>
-                              <SelectItem value="Lifestyle">Lifestyle</SelectItem>
-                              <SelectItem value="Treatment">Treatment</SelectItem>
+                              <SelectItem value="Medication">
+                                Medication
+                              </SelectItem>
+                              <SelectItem value="Lifestyle">
+                                Lifestyle
+                              </SelectItem>
+                              <SelectItem value="Treatment">
+                                Treatment
+                              </SelectItem>
                               <SelectItem value="Other">Other</SelectItem>
                             </SelectContent>
                           </Select>
@@ -457,7 +504,7 @@ const Dashboard = () => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="recommendationDescription"
@@ -474,18 +521,20 @@ const Dashboard = () => {
                   </div>
 
                   <div className="flex justify-end space-x-2">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
+                    <Button
+                      type="button"
+                      variant="outline"
                       onClick={() => setIsAddPatientOpen(false)}
                     >
                       Cancel
                     </Button>
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={createPatientProfile.isPending}
                     >
-                      {createPatientProfile.isPending ? 'Adding...' : 'Add Patient'}
+                      {createPatientProfile.isPending
+                        ? "Adding..."
+                        : "Add Patient"}
                     </Button>
                   </div>
                 </form>
@@ -494,31 +543,30 @@ const Dashboard = () => {
           </Dialog>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
           {/* Stats Overview */}
-          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2"> 
+          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2">
             {isLoadingStats || isLoadingPatientsCount ? (
-              Array(2).fill(0).map((_, i) => (
-                <Skeleton key={i} className="h-36 rounded-lg" />
-              ))
+              Array(2)
+                .fill(0)
+                .map((_, i) => <Skeleton key={i} className="h-36 rounded-lg" />)
             ) : (
               <>
-                <StatCard 
-                  title="Total Patients" 
-                  value={stats?.totalPatients || 0} 
-                  color="primary" 
+                <StatCard
+                  title="Total Patients"
+                  value={stats?.totalPatients || 0}
+                  color="primary"
                   link="/patients"
                 />
-                <StatCard 
-                  title="Active Alerts" 
-                  value={stats?.activeAlertsCount || 0} 
-                  color="primary" 
+                <StatCard
+                  title="Active Alerts"
+                  value={stats?.activeAlertsCount || 0}
+                  color="primary"
                   link="/patients"
                 />
               </>
             )}
           </div>
-          
+
           {/* Patients List */}
           <Card>
             <CardHeader>
@@ -530,12 +578,14 @@ const Dashboard = () => {
                   <TabsTrigger value="all">All Patients</TabsTrigger>
                   <TabsTrigger value="active">Active Patients</TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="all" className="space-y-4">
                   {isLoadingPatients ? (
-                    Array(3).fill(0).map((_, i) => (
-                      <Skeleton key={i} className="h-20 rounded-lg" />
-                    ))
+                    Array(3)
+                      .fill(0)
+                      .map((_, i) => (
+                        <Skeleton key={i} className="h-20 rounded-lg" />
+                      ))
                   ) : patients.length > 0 ? (
                     <div className="rounded-md border">
                       <div className="grid grid-cols-5 font-medium p-4 border-b bg-muted/50">
@@ -546,16 +596,23 @@ const Dashboard = () => {
                         <div>Status</div>
                       </div>
                       {patients.map((patient) => (
-                        <div key={patient.id} className="grid grid-cols-5 p-4 border-b last:border-0 hover:bg-muted/50">
-                          <div className="font-medium">{patient.user?.firstName} {patient.user?.lastName}</div>
+                        <div
+                          key={patient.id}
+                          className="grid grid-cols-5 p-4 border-b last:border-0 hover:bg-muted/50"
+                        >
+                          <div className="font-medium">
+                            {patient.user?.firstName} {patient.user?.lastName}
+                          </div>
                           <div>{patient.age}</div>
-                          <div className="text-sm text-gray-500">{patient.phoneNumber}</div>
+                          <div className="text-sm text-gray-500">
+                            {patient.phoneNumber}
+                          </div>
                           <div className="text-sm">
                             Temperature, Pulse, etc.
                           </div>
                           <div>
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              {patient.isActive ? 'Active' : 'Inactive'}
+                              {patient.isActive ? "Active" : "Inactive"}
                             </span>
                           </div>
                         </div>
@@ -567,13 +624,15 @@ const Dashboard = () => {
                     </div>
                   )}
                 </TabsContent>
-                
+
                 <TabsContent value="active">
                   {isLoadingPatients ? (
-                    Array(3).fill(0).map((_, i) => (
-                      <Skeleton key={i} className="h-20 rounded-lg" />
-                    ))
-                  ) : patients.filter(p => p.isActive).length > 0 ? (
+                    Array(3)
+                      .fill(0)
+                      .map((_, i) => (
+                        <Skeleton key={i} className="h-20 rounded-lg" />
+                      ))
+                  ) : patients.filter((p) => p.isActive).length > 0 ? (
                     <div className="rounded-md border">
                       <div className="grid grid-cols-5 font-medium p-4 border-b bg-muted/50">
                         <div>Name</div>
@@ -583,12 +642,19 @@ const Dashboard = () => {
                         <div>Status</div>
                       </div>
                       {patients
-                        .filter(patient => patient.isActive)
+                        .filter((patient) => patient.isActive)
                         .map((patient) => (
-                          <div key={patient.id} className="grid grid-cols-5 p-4 border-b last:border-0 hover:bg-muted/50">
-                            <div className="font-medium">{patient.user?.firstName} {patient.user?.lastName}</div>
+                          <div
+                            key={patient.id}
+                            className="grid grid-cols-5 p-4 border-b last:border-0 hover:bg-muted/50"
+                          >
+                            <div className="font-medium">
+                              {patient.user?.firstName} {patient.user?.lastName}
+                            </div>
                             <div>{patient.age}</div>
-                            <div className="text-sm text-gray-500">{patient.phoneNumber}</div>
+                            <div className="text-sm text-gray-500">
+                              {patient.phoneNumber}
+                            </div>
                             <div className="text-sm">
                               Temperature, Pulse, etc.
                             </div>

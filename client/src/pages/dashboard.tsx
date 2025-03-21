@@ -12,7 +12,7 @@ import {
     FormItem, 
     FormLabel, 
     FormMessage 
-} from "your-ui-library"; // Replace with the actual module
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -216,12 +216,15 @@ const Dashboard = () => {
     });
   };
 
-  const { data: dashboardStats, isLoading, error } = useQuery('/api/stats/dashboard', async () => {
-    const res = await fetch('/api/stats/dashboard');
-    if (!res.ok) {
+  const { data: dashboardStats, isLoading, error } = useQuery({
+    queryKey: ['/api/stats/dashboard'],
+    queryFn: async () => {
+      const res = await fetch('/api/stats/dashboard');
+      if (!res.ok) {
         throw new Error('Failed to fetch dashboard stats');
+      }
+      return res.json();
     }
-    return res.json();
   });
 
   if (isLoading) {

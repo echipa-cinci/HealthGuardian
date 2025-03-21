@@ -12,7 +12,7 @@ import {
     FormItem, 
     FormLabel, 
     FormMessage 
-} from "@/components/ui/form"; // Replace with the actual module
+} from "your-ui-library"; // Replace with the actual module
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

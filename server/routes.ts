@@ -312,37 +312,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Delete patient profile (unassign from doctor)
-  app.delete('/api/patient-profiles/:id', isAuthenticated, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const doctorId = (req.user as any)?.id;
-      
-      if (!doctorId) {
-        return res.status(401).json({ message: 'Unauthorized' });
-      }
-      
-      // Get the patient profile first to verify doctor has access
-      const patientProfile = await storage.getPatientProfile(id);
-      
-      if (!patientProfile) {
-        return res.status(404).json({ message: 'Patient profile not found' });
-      }
-      
-      if (patientProfile.doctorId !== doctorId) {
-        return res.status(403).json({ message: 'You are not authorized to delete this patient' });
-      }
-      
-      // Update patient profile to set doctorId to null (unassign from doctor)
-      const updatedProfile = await storage.updatePatientProfile(id, { doctorId: null });
-      
-      res.json({ message: 'Patient successfully removed from your list' });
-    } catch (error) {
-      console.error('Error deleting patient profile:', error);
-      res.status(500).json({ message: 'Error deleting patient profile' });
-    }
-  });
-  
   // Parameter routes
   app.get('/api/parameters/:patientProfileId', isAuthenticated, async (req, res) => {
     try {

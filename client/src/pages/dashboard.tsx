@@ -111,6 +111,11 @@ const Dashboard = () => {
   const { data: patientsCount = 0, isLoading: isLoadingPatientsCount } =
     useQuery<number>({
       queryKey: ["/api/patients/count"],
+      queryFn: async () => {
+        const res = await fetch("/api/patients/count");
+        if (!res.ok) throw new Error("Failed to fetch patient count");
+        return res.json();
+      },
     });
 
   // Get patient users (role = 'patient')
@@ -136,20 +141,15 @@ const Dashboard = () => {
     mutationFn: async (
       data: PatientProfileFormValues & { doctorId: number },
     ) => {
-      // Extract recommendation data before sending the patient profile data
       const {
         recommendationType,
         recommendationDescription,
         ...patientProfileData
       } = data;
-
-      // Convert userId to a number
       const patientData = {
         ...patientProfileData,
-        userId: parseInt(patientProfileData.userId as string, 10),
+        userId: parseInt(patientProfileData.userId, 10),
       };
-
-      // Create patient profile first
       const response = await apiRequest(
         "/api/patient-profiles",
         "POST",
@@ -164,7 +164,7 @@ const Dashboard = () => {
     onSuccess: async (data) => {
       const profileId = data.profile.id;
 
-      // Create 3 initial parameter records for the patient
+      // Create initial parameters
       const initialParameters = Array(3)
         .fill(null)
         .map(() => ({
@@ -175,7 +175,6 @@ const Dashboard = () => {
           pulse: Math.floor(Math.random() * 15) + 65,
         }));
 
-      // Create parameter records
       for (const parameter of initialParameters) {
         await apiRequest("/api/parameters", "POST", parameter);
       }
@@ -186,12 +185,11 @@ const Dashboard = () => {
         type: data.recommendationType,
         description: data.recommendationDescription,
       };
-
       await apiRequest("/api/recommendations", "POST", recommendation);
 
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/patients"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/patients/count"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/patients/count"] }); // Ensure this is included
       queryClient.invalidateQueries({ queryKey: ["/api/stats/dashboard"] });
 
       toast({

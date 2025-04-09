@@ -158,6 +158,7 @@ const Patients = () => {
     onSuccess: async (data) => {
       const profileId = data.profile.id;
 
+      // Create initial parameters
       const initialParameters = Array(3)
         .fill(null)
         .map(() => ({
@@ -172,16 +173,18 @@ const Patients = () => {
         await apiRequest("/api/parameters", "POST", parameter);
       }
 
+      // Create recommendation
       const recommendation = {
         patientProfileId: profileId,
         type: data.recommendationType,
         description: data.recommendationDescription,
       };
-
       await apiRequest("/api/recommendations", "POST", recommendation);
 
+      // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/patients"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/patients/count"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/patients/count"] }); // Add this line
+      queryClient.invalidateQueries({ queryKey: ["/api/stats/dashboard"] });
 
       toast({
         title: "Success",
@@ -195,6 +198,35 @@ const Patients = () => {
       toast({
         title: "Error",
         description: error.message || "Failed to add patient",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation to remove a patient from the doctor's list
+  const removePatient = useMutation({
+    mutationFn: async (patientId: number) => {
+      const res = await apiRequest(
+        `/api/patient-profiles/${patientId}/remove`,
+        "PUT",
+      );
+      if (!res.ok) throw new Error("Failed to remove patient");
+      return res.json();
+    },
+    onSuccess: () => {
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ["/api/patients"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/patients/count"] });
+      toast({
+        title: "Success",
+        description: "Patient has been removed from your list",
+        variant: "default",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to remove patient",
         variant: "destructive",
       });
     },
@@ -577,11 +609,17 @@ const Patients = () => {
                         {format(new Date(patient.createdAt), "MMM d, yyyy")}
                       </TableCell>
                       <TableCell>
-                        <Link href={`/patient/${patient.id}`}>
-                          <Button variant="outline" size="sm">
-                            View Details
+                        <div className="flex space-x-2">
+                          <Link href={`/patients/${patient.id}`}>
+                            <Button variant="link">View</Button>
+                          </Link>
+                          <Button
+                            variant="destructive"
+                            onClick={() => removePatient.mutate(patient.id)}
+                          >
+                            Remove
                           </Button>
-                        </Link>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))

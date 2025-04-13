@@ -130,10 +130,15 @@ const Dashboard = () => {
     });
 
   // Get patients list
-  const { data: patients = [], isLoading: isLoadingPatients } = useQuery<
-    PatientProfile[]
-  >({
-    queryKey: ["/api/patients"],
+  const { data: patients = [], isLoading: isLoadingPatients } = useQuery<PatientProfile[]>({
+    queryKey: ["/api/patients", authData?.user?.id], // adaugăm ca dependență
+    queryFn: async () => {
+      if (!authData?.user?.id) return [];
+      const res = await fetch(`/api/patients?doctorId=${authData.user.id}`);
+      if (!res.ok) throw new Error("Failed to fetch patients for doctor");
+      return res.json();
+    },
+    enabled: !!authData?.user?.id, // rulează doar când avem doctorId
   });
 
   // Create patient profile mutation

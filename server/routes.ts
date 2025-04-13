@@ -334,7 +334,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Update patient profile to set doctorId to null (unassign from doctor)
-      const updatedProfile = await storage.updatePatientProfile(id, { doctorId: null });
+      const updatedProfile = await storage.deletePatientProfile(id);
       
       res.json({ message: 'Patient successfully removed from your list' });
     } catch (error) {

@@ -149,6 +149,13 @@ export class DatabaseStorage implements IStorage {
     return patientProfile;
   }
 
+  async deletePatientProfile(patientProfileId: number): Promise<void> {
+    await db.delete(parameters).where(eq(parameters.patientProfileId, patientProfileId));
+    await db.delete(recommendations).where(eq(recommendations.patientProfileId, patientProfileId));
+    await db.delete(alerts).where(eq(alerts.patientProfileId, patientProfileId));
+    await db.delete(patientProfiles).where(eq(patientProfiles.id, patientProfileId));
+  }
+
   async getPatientProfilesCount(): Promise<number> {
     const [result] = await db
       .select({ count: count() })

@@ -203,23 +203,16 @@ const Patients = () => {
     },
   });
 
-  // Mutation to remove a patient from the doctor's list
   const removePatient = useMutation({
     mutationFn: async (patientId: number) => {
-      const res = await apiRequest(
-        `/api/patient-profiles/${patientId}/remove`,
-        "PUT",
-      );
-      if (!res.ok) throw new Error("Failed to remove patient");
-      return res.json();
+      const res = await apiRequest(`/api/patient-profiles/${patientId}`, "DELETE");
     },
     onSuccess: () => {
-      // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/patients"] });
       queryClient.invalidateQueries({ queryKey: ["/api/patients/count"] });
       toast({
         title: "Success",
-        description: "Patient has been removed from your list",
+        description: "Patient has been removed",
         variant: "default",
       });
     },
@@ -231,6 +224,7 @@ const Patients = () => {
       });
     },
   });
+
 
   const form = useForm<PatientProfileFormValues>({
     resolver: zodResolver(patientProfileSchema),

@@ -205,11 +205,15 @@ const Patients = () => {
 
   const removePatient = useMutation({
     mutationFn: async (patientId: number) => {
-      const res = await apiRequest(`/api/patient-profiles/${patientId}`, "DELETE");
+      const res = await apiRequest(
+        `/api/patient-profiles/${patientId}`,
+        "DELETE",
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/patients"] });
       queryClient.invalidateQueries({ queryKey: ["/api/patients/count"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats/dashboard"] });
       toast({
         title: "Success",
         description: "Patient has been removed",
@@ -224,7 +228,6 @@ const Patients = () => {
       });
     },
   });
-
 
   const form = useForm<PatientProfileFormValues>({
     resolver: zodResolver(patientProfileSchema),
@@ -609,7 +612,15 @@ const Patients = () => {
                           </Link>
                           <Button
                             variant="destructive"
-                            onClick={() => removePatient.mutate(patient.id)}
+                            onClick={() => {
+                              if (
+                                window.confirm(
+                                  "Are you sure you want to remove this patient?",
+                                )
+                              ) {
+                                removePatient.mutate(patient.id);
+                              }
+                            }}
                           >
                             Remove
                           </Button>

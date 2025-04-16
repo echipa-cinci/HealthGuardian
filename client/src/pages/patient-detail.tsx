@@ -1,9 +1,23 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
@@ -30,11 +44,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
 // Define types
 type PatientProfile = {
@@ -87,7 +110,7 @@ type Alert = {
   patientProfileId: number;
   parameterName: string;
   value: number;
-  status: 'active' | 'acknowledged';
+  status: "active" | "acknowledged";
   timestamp: string;
 };
 
@@ -112,7 +135,7 @@ const parameterLimitSchema = z.object({
 });
 
 const PatientDetail = () => {
-  const [, params] = useRoute<{ id: string }>('/patient/:id');
+  const [, params] = useRoute<{ id: string }>("/patients/:id");
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -130,7 +153,7 @@ const PatientDetail = () => {
   const limitForm = useForm<z.infer<typeof parameterLimitSchema>>({
     resolver: zodResolver(parameterLimitSchema),
     defaultValues: {
-      parameterName: 'temperature',
+      parameterName: "temperature",
       minValue: 36.0,
       maxValue: 37.5,
     },
@@ -141,7 +164,7 @@ const PatientDetail = () => {
     queryKey: [`/api/patient-profiles/${patientId}`],
     queryFn: async () => {
       const res = await fetch(`/api/patient-profiles/${patientId}`);
-      if (!res.ok) throw new Error('Failed to fetch patient');
+      if (!res.ok) throw new Error("Failed to fetch patient");
       return res.json();
     },
     enabled: !!patientId,
@@ -152,7 +175,7 @@ const PatientDetail = () => {
     queryKey: [`/api/parameters/${patientId}`],
     queryFn: async () => {
       const res = await fetch(`/api/parameters/${patientId}`);
-      if (!res.ok) throw new Error('Failed to fetch parameters');
+      if (!res.ok) throw new Error("Failed to fetch parameters");
       return res.json();
     },
     enabled: !!patientId,
@@ -163,7 +186,7 @@ const PatientDetail = () => {
     queryKey: [`/api/parameter-limits/${patientId}`],
     queryFn: async () => {
       const res = await fetch(`/api/parameter-limits/${patientId}`);
-      if (!res.ok) throw new Error('Failed to fetch parameter limits');
+      if (!res.ok) throw new Error("Failed to fetch parameter limits");
       return res.json();
     },
     enabled: !!patientId,
@@ -174,7 +197,7 @@ const PatientDetail = () => {
     queryKey: [`/api/alerts/${patientId}`],
     queryFn: async () => {
       const res = await fetch(`/api/alerts/${patientId}`);
-      if (!res.ok) throw new Error('Failed to fetch alerts');
+      if (!res.ok) throw new Error("Failed to fetch alerts");
       return res.json();
     },
     enabled: !!patientId,
@@ -184,15 +207,17 @@ const PatientDetail = () => {
   const updatePatient = useMutation({
     mutationFn: async (data: z.infer<typeof patientUpdateSchema>) => {
       const res = await fetch(`/api/patient-profiles/${patientId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error('Failed to update patient');
+      if (!res.ok) throw new Error("Failed to update patient");
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/patient-profiles/${patientId}`] });
+      queryClient.invalidateQueries({
+        queryKey: [`/api/patient-profiles/${patientId}`],
+      });
       toast({
         title: "Success",
         description: "Patient information updated",
@@ -213,18 +238,18 @@ const PatientDetail = () => {
     mutationFn: async () => {
       // This endpoint will need to be implemented in the server
       const res = await fetch(`/api/patient-profiles/${patientId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
-      if (!res.ok) throw new Error('Failed to delete patient');
+      if (!res.ok) throw new Error("Failed to delete patient");
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/patients'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/patients"] });
       toast({
         title: "Success",
         description: "Patient removed from your list",
       });
-      navigate('/patients');
+      navigate("/patients");
     },
     onError: (error) => {
       toast({
@@ -238,19 +263,21 @@ const PatientDetail = () => {
   // Add parameter limit mutation
   const addParameterLimit = useMutation({
     mutationFn: async (data: z.infer<typeof parameterLimitSchema>) => {
-      const res = await fetch('/api/parameter-limits', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/parameter-limits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           patientProfileId: patientId,
           ...data,
         }),
       });
-      if (!res.ok) throw new Error('Failed to add parameter limit');
+      if (!res.ok) throw new Error("Failed to add parameter limit");
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/parameter-limits/${patientId}`] });
+      queryClient.invalidateQueries({
+        queryKey: [`/api/parameter-limits/${patientId}`],
+      });
       toast({
         title: "Success",
         description: "Parameter limit added",
@@ -270,11 +297,11 @@ const PatientDetail = () => {
   const updateAlertStatus = useMutation({
     mutationFn: async (alertId: number) => {
       const res = await fetch(`/api/alerts/${alertId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'acknowledged' }),
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "acknowledged" }),
       });
-      if (!res.ok) throw new Error('Failed to update alert status');
+      if (!res.ok) throw new Error("Failed to update alert status");
       return res.json();
     },
     onSuccess: () => {
@@ -313,9 +340,12 @@ const PatientDetail = () => {
 
   // Format chart data
   const chartData = parameters
-    .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+    .sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+    )
     .map((param) => ({
-      timestamp: format(new Date(param.timestamp), 'HH:mm:ss'),
+      timestamp: format(new Date(param.timestamp), "HH:mm:ss"),
       temperature: param.temperature,
       pulse: param.pulse,
       humidity: param.humidity,
@@ -350,10 +380,15 @@ const PatientDetail = () => {
           <Card>
             <CardHeader>
               <CardTitle>Patient Not Found</CardTitle>
-              <CardDescription>The patient you are looking for does not exist or you don't have access.</CardDescription>
+              <CardDescription>
+                The patient you are looking for does not exist or you don't have
+                access.
+              </CardDescription>
             </CardHeader>
             <CardFooter>
-              <Button onClick={() => navigate('/patients')}>Back to Patients</Button>
+              <Button onClick={() => navigate("/patients")}>
+                Back to Patients
+              </Button>
             </CardFooter>
           </Card>
         </div>
@@ -384,7 +419,10 @@ const PatientDetail = () => {
                   <DialogTitle>Edit Patient Information</DialogTitle>
                 </DialogHeader>
                 <Form {...patientForm}>
-                  <form onSubmit={patientForm.handleSubmit(onUpdatePatient)} className="space-y-4">
+                  <form
+                    onSubmit={patientForm.handleSubmit(onUpdatePatient)}
+                    className="space-y-4"
+                  >
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField
                         control={patientForm.control}
@@ -535,7 +573,10 @@ const PatientDetail = () => {
               </DialogContent>
             </Dialog>
 
-            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <Dialog
+              open={isDeleteDialogOpen}
+              onOpenChange={setIsDeleteDialogOpen}
+            >
               <DialogTrigger asChild>
                 <Button variant="destructive">
                   <Trash className="mr-2 h-4 w-4" />
@@ -546,13 +587,19 @@ const PatientDetail = () => {
                 <DialogHeader>
                   <DialogTitle>Remove Patient</DialogTitle>
                   <DialogDescription>
-                    Are you sure you want to remove this patient from your list? This action removes them from your care.
+                    Are you sure you want to remove this patient from your list?
+                    This action removes them from your care.
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
-                  <Button 
-                    variant="destructive" 
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsDeleteDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
                     onClick={() => deletePatient.mutate()}
                     disabled={deletePatient.isPending}
                   >
@@ -567,31 +614,41 @@ const PatientDetail = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Personal Information</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Personal Information
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <dl className="space-y-2">
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">Age:</dt>
-                  <dd className="text-sm text-right">{patient.age || 'N/A'}</dd>
+                  <dd className="text-sm text-right">{patient.age || "N/A"}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">Email:</dt>
-                  <dd className="text-sm text-right">{patient.email || patient.user?.email || 'N/A'}</dd>
+                  <dd className="text-sm text-right">
+                    {patient.email || patient.user?.email || "N/A"}
+                  </dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">Phone:</dt>
-                  <dd className="text-sm text-right">{patient.phoneNumber || 'N/A'}</dd>
+                  <dd className="text-sm text-right">
+                    {patient.phoneNumber || "N/A"}
+                  </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-sm font-medium text-gray-500">Address:</dt>
-                  <dd className="text-sm text-right">{patient.address || 'N/A'}</dd>
+                  <dt className="text-sm font-medium text-gray-500">
+                    Address:
+                  </dt>
+                  <dd className="text-sm text-right">
+                    {patient.address || "N/A"}
+                  </dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">Status:</dt>
                   <dd className="text-sm text-right">
                     <Badge variant={patient.isActive ? "default" : "secondary"}>
-                      {patient.isActive ? 'Active' : 'Inactive'}
+                      {patient.isActive ? "Active" : "Inactive"}
                     </Badge>
                   </dd>
                 </div>
@@ -601,21 +658,35 @@ const PatientDetail = () => {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Medical Information</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Medical Information
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <dl className="space-y-2">
                 <div className="flex justify-between">
-                  <dt className="text-sm font-medium text-gray-500">Profession:</dt>
-                  <dd className="text-sm text-right">{patient.profession || 'N/A'}</dd>
+                  <dt className="text-sm font-medium text-gray-500">
+                    Profession:
+                  </dt>
+                  <dd className="text-sm text-right">
+                    {patient.profession || "N/A"}
+                  </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-sm font-medium text-gray-500">Workplace:</dt>
-                  <dd className="text-sm text-right">{patient.workplace || 'N/A'}</dd>
+                  <dt className="text-sm font-medium text-gray-500">
+                    Workplace:
+                  </dt>
+                  <dd className="text-sm text-right">
+                    {patient.workplace || "N/A"}
+                  </dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-gray-500 mb-1">Allergies:</dt>
-                  <dd className="text-sm">{patient.allergies || 'None recorded'}</dd>
+                  <dt className="text-sm font-medium text-gray-500 mb-1">
+                    Allergies:
+                  </dt>
+                  <dd className="text-sm">
+                    {patient.allergies || "None recorded"}
+                  </dd>
                 </div>
               </dl>
             </CardContent>
@@ -628,24 +699,33 @@ const PatientDetail = () => {
             <CardContent>
               {isLoadingAlerts ? (
                 <Skeleton className="h-20 w-full" />
-              ) : alerts.filter(a => a.status === 'active').length > 0 ? (
+              ) : alerts.filter((a) => a.status === "active").length > 0 ? (
                 <div className="space-y-2">
-                  {alerts.filter(a => a.status === 'active').map((alert) => (
-                    <Alert key={alert.id} variant="destructive" className="flex justify-between items-center">
-                      <div>
-                        <AlertCircle className="h-4 w-4 inline-block mr-2" />
-                        <span className="capitalize">{alert.parameterName}</span>: {alert.value}
-                      </div>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => updateAlertStatus.mutate(alert.id)}
-                        disabled={updateAlertStatus.isPending}
+                  {alerts
+                    .filter((a) => a.status === "active")
+                    .map((alert) => (
+                      <Alert
+                        key={alert.id}
+                        variant="destructive"
+                        className="flex justify-between items-center"
                       >
-                        <Check className="h-4 w-4" />
-                      </Button>
-                    </Alert>
-                  ))}
+                        <div>
+                          <AlertCircle className="h-4 w-4 inline-block mr-2" />
+                          <span className="capitalize">
+                            {alert.parameterName}
+                          </span>
+                          : {alert.value}
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateAlertStatus.mutate(alert.id)}
+                          disabled={updateAlertStatus.isPending}
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                      </Alert>
+                    ))}
                 </div>
               ) : (
                 <p className="text-sm text-gray-500">No active alerts</p>
@@ -661,7 +741,7 @@ const PatientDetail = () => {
             <TabsTrigger value="medical">Medical History</TabsTrigger>
             <TabsTrigger value="allAlerts">All Alerts</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="parameters">
             <Card>
               <CardHeader>
@@ -677,20 +757,39 @@ const PatientDetail = () => {
                   <div className="space-y-6">
                     <div className="h-[300px]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <LineChart
+                          data={chartData}
+                          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                        >
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="timestamp" />
                           <YAxis />
                           <Tooltip />
                           <Legend />
-                          <Line type="monotone" dataKey="temperature" stroke="#8884d8" />
-                          <Line type="monotone" dataKey="pulse" stroke="#82ca9d" />
-                          <Line type="monotone" dataKey="humidity" stroke="#ffc658" />
-                          <Line type="monotone" dataKey="ecg" stroke="#ff7300" />
+                          <Line
+                            type="monotone"
+                            dataKey="temperature"
+                            stroke="#8884d8"
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="pulse"
+                            stroke="#82ca9d"
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="humidity"
+                            stroke="#ffc658"
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="ecg"
+                            stroke="#ff7300"
+                          />
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
-                    
+
                     <div className="overflow-x-auto">
                       <Table>
                         <TableHeader>
@@ -706,7 +805,10 @@ const PatientDetail = () => {
                           {parameters.map((param) => (
                             <TableRow key={param.id}>
                               <TableCell>
-                                {format(new Date(param.timestamp), 'MMM d, yyyy HH:mm:ss')}
+                                {format(
+                                  new Date(param.timestamp),
+                                  "MMM d, yyyy HH:mm:ss",
+                                )}
                               </TableCell>
                               <TableCell>{param.temperature}</TableCell>
                               <TableCell>{param.pulse}</TableCell>
@@ -720,13 +822,15 @@ const PatientDetail = () => {
                   </div>
                 ) : (
                   <div className="text-center py-10">
-                    <p className="text-gray-500">No parameter data available for this patient</p>
+                    <p className="text-gray-500">
+                      No parameter data available for this patient
+                    </p>
                   </div>
                 )}
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="limits">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
@@ -736,7 +840,10 @@ const PatientDetail = () => {
                     Set thresholds for patient parameters to trigger alerts
                   </CardDescription>
                 </div>
-                <Dialog open={isAddLimitDialogOpen} onOpenChange={setIsAddLimitDialogOpen}>
+                <Dialog
+                  open={isAddLimitDialogOpen}
+                  onOpenChange={setIsAddLimitDialogOpen}
+                >
                   <DialogTrigger asChild>
                     <Button>
                       <PlusCircle className="mr-2 h-4 w-4" />
@@ -747,11 +854,15 @@ const PatientDetail = () => {
                     <DialogHeader>
                       <DialogTitle>Add Parameter Limit</DialogTitle>
                       <DialogDescription>
-                        Set a new parameter limit threshold to trigger alerts when exceeded
+                        Set a new parameter limit threshold to trigger alerts
+                        when exceeded
                       </DialogDescription>
                     </DialogHeader>
                     <Form {...limitForm}>
-                      <form onSubmit={limitForm.handleSubmit(onAddLimit)} className="space-y-4">
+                      <form
+                        onSubmit={limitForm.handleSubmit(onAddLimit)}
+                        className="space-y-4"
+                      >
                         <FormField
                           control={limitForm.control}
                           name="parameterName"
@@ -763,7 +874,9 @@ const PatientDetail = () => {
                                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                   {...field}
                                 >
-                                  <option value="temperature">Temperature</option>
+                                  <option value="temperature">
+                                    Temperature
+                                  </option>
                                   <option value="pulse">Pulse</option>
                                   <option value="humidity">Humidity</option>
                                   <option value="ecg">ECG</option>
@@ -802,8 +915,13 @@ const PatientDetail = () => {
                           />
                         </div>
                         <DialogFooter>
-                          <Button type="submit" disabled={addParameterLimit.isPending}>
-                            {addParameterLimit.isPending ? "Adding..." : "Add Limit"}
+                          <Button
+                            type="submit"
+                            disabled={addParameterLimit.isPending}
+                          >
+                            {addParameterLimit.isPending
+                              ? "Adding..."
+                              : "Add Limit"}
                           </Button>
                         </DialogFooter>
                       </form>
@@ -827,11 +945,16 @@ const PatientDetail = () => {
                     <TableBody>
                       {parameterLimits.map((limit) => (
                         <TableRow key={limit.id}>
-                          <TableCell className="capitalize">{limit.parameterName}</TableCell>
+                          <TableCell className="capitalize">
+                            {limit.parameterName}
+                          </TableCell>
                           <TableCell>{limit.minValue}</TableCell>
                           <TableCell>{limit.maxValue}</TableCell>
                           <TableCell>
-                            {format(new Date(limit.updatedAt), 'MMM d, yyyy HH:mm')}
+                            {format(
+                              new Date(limit.updatedAt),
+                              "MMM d, yyyy HH:mm",
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -840,13 +963,15 @@ const PatientDetail = () => {
                 ) : (
                   <div className="text-center py-10">
                     <p className="text-gray-500">No parameter limits defined</p>
-                    <p className="text-sm text-gray-400 mt-1">Click "Add Limit" to create one</p>
+                    <p className="text-sm text-gray-400 mt-1">
+                      Click "Add Limit" to create one
+                    </p>
                   </div>
                 )}
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="medical">
             <Card>
               <CardHeader>
@@ -855,16 +980,20 @@ const PatientDetail = () => {
               <CardContent className="space-y-4">
                 <div>
                   <h3 className="text-lg font-medium mb-2">Medical History</h3>
-                  <p className="whitespace-pre-line">{patient.medicalHistory || 'No medical history recorded'}</p>
+                  <p className="whitespace-pre-line">
+                    {patient.medicalHistory || "No medical history recorded"}
+                  </p>
                 </div>
                 <div>
                   <h3 className="text-lg font-medium mb-2">Consultations</h3>
-                  <p className="whitespace-pre-line">{patient.consultations || 'No consultations recorded'}</p>
+                  <p className="whitespace-pre-line">
+                    {patient.consultations || "No consultations recorded"}
+                  </p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="allAlerts">
             <Card>
               <CardHeader>
@@ -891,21 +1020,36 @@ const PatientDetail = () => {
                       {alerts.map((alert) => (
                         <TableRow key={alert.id}>
                           <TableCell>
-                            {format(new Date(alert.timestamp), 'MMM d, yyyy HH:mm:ss')}
+                            {format(
+                              new Date(alert.timestamp),
+                              "MMM d, yyyy HH:mm:ss",
+                            )}
                           </TableCell>
-                          <TableCell className="capitalize">{alert.parameterName}</TableCell>
+                          <TableCell className="capitalize">
+                            {alert.parameterName}
+                          </TableCell>
                           <TableCell>{alert.value}</TableCell>
                           <TableCell>
-                            <Badge variant={alert.status === 'active' ? "destructive" : "outline"}>
-                              {alert.status === 'active' ? 'Active' : 'Acknowledged'}
+                            <Badge
+                              variant={
+                                alert.status === "active"
+                                  ? "destructive"
+                                  : "outline"
+                              }
+                            >
+                              {alert.status === "active"
+                                ? "Active"
+                                : "Acknowledged"}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {alert.status === 'active' && (
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                onClick={() => updateAlertStatus.mutate(alert.id)}
+                            {alert.status === "active" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  updateAlertStatus.mutate(alert.id)
+                                }
                                 disabled={updateAlertStatus.isPending}
                               >
                                 Acknowledge
@@ -918,7 +1062,9 @@ const PatientDetail = () => {
                   </Table>
                 ) : (
                   <div className="text-center py-10">
-                    <p className="text-gray-500">No alerts recorded for this patient</p>
+                    <p className="text-gray-500">
+                      No alerts recorded for this patient
+                    </p>
                   </div>
                 )}
               </CardContent>

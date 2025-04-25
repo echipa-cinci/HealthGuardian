@@ -189,6 +189,24 @@ export default function PatientDashboard() {
                   <h3 className="font-semibold">Previous Consultations</h3>
                   <p className="text-sm">{patientProfile.consultations || 'No consultations recorded'}</p>
                 </div>
+                <div>
+                  <h3 className="font-semibold">Doctor's Recommendations</h3>
+                  {recommendations.length > 0 ? (
+                    <div className="space-y-2">
+                      {recommendations.map(recommendation => (
+                        <div key={recommendation.id} className="p-2 border rounded-lg">
+                          <h4 className="font-medium text-sm">{recommendation.type}</h4>
+                          <p className="text-sm text-gray-700">{recommendation.description}</p>
+                          <div className="mt-1 text-xs text-gray-500">
+                            {formatDateForDisplay(recommendation.createdAt)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm">No recommendations available.</p>
+                  )}
+                </div>
               </div>
             ) : (
               <p>No medical information found.</p>
@@ -197,37 +215,11 @@ export default function PatientDashboard() {
         </Card>
       </div>
 
-      <Tabs defaultValue="recommendations" className="mb-6">
+      <Tabs defaultValue="parameters" className="mb-6">
         <TabsList className="mb-4">
-          <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
           <TabsTrigger value="parameters">Parameters</TabsTrigger>
           <TabsTrigger value="alerts">Alerts</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="recommendations">
-          <Card>
-            <CardHeader>
-              <CardTitle>Doctor's Recommendations</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {recommendations.length > 0 ? (
-                <div className="space-y-4">
-                  {recommendations.map(recommendation => (
-                    <div key={recommendation.id} className="p-4 border rounded-lg">
-                      <h3 className="font-semibold text-lg">{recommendation.type}</h3>
-                      <p className="text-gray-700">{recommendation.description}</p>
-                      <div className="mt-2 text-xs text-gray-500">
-                        {formatDateForDisplay(recommendation.createdAt)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p>No recommendations available.</p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="parameters">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

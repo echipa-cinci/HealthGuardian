@@ -1,9 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AuthData } from "@/App";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 type PatientProfile = {
   id: number;
@@ -54,6 +55,9 @@ type Alert = {
 
 export default function PatientDashboard() {
   const [patientProfileId, setPatientProfileId] = useState<number | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   // Get authenticated user
   const { data: authData } = useQuery<AuthData>({

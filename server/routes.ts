@@ -1,6 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { WebSocketServer, WebSocket } from 'ws';
 import { 
   insertUserSchema, 
   insertPatientProfileSchema, 
@@ -303,6 +304,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!patientProfile) {
         return res.status(404).json({ message: 'Patient profile not found' });
+      }
+      
+      // Notify the patient about the profile update
+      if (patientProfile.userId) {
+        if ((global as any).notifyProfileUpdate) {
+          (global as any).notifyProfileUpdate(patientProfile.userId, patientProfile.id);
+        }
       }
       
       res.json(patientProfile);
@@ -687,5 +695,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Create HTTP server
   const server = createServer(app);
+  
+  // Create WebSocket server
+  const wss = new WebSocketServer({ server, path: '/ws' });
+  
+  // Store connected clients
+  const clients = new Map<number, WebSocket>();
+  
+  wss.on('connection', (ws, req) => {
+    // Handle connection
+    ws.on('message', (message) => {
+      try {
+        const data = JSON.parse(message.toString());
+        if (data.type === 'register' && data.userId) {
+          // Register this connection for a specific user
+          clients.set(data.userId, ws);
+          console.log(`WebSocket client registered for user ${data.userId}`);
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    });
+    
+    ws.on('close', () => {
+      // Remove client when connection closes
+      for (const [userId, client] of clients.entries()) {
+        if (client === ws) {
+          clients.delete(userId);
+          console.log(`WebSocket client for user ${userId} disconnected`);
+          break;
+        }
+      }
+    });
+  });
+  
+  // Add a function to the global scope to notify clients about updates
+  (global as any).notifyProfileUpdate = (userId: number, patientProfileId: number) => {
+    const ws = clients.get(userId);
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({
+        type: 'profile_update',
+        patientProfileId
+      }));
+      console.log(`Notified user ${userId} about profile update for ${patientProfileId}`);
+    }
+  };
+  
   return server;
 }

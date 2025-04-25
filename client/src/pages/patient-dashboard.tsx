@@ -151,7 +151,7 @@ export default function PatientDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <Card>
           <CardHeader>
-            <CardTitle>My Profile</CardTitle>
+            <CardTitle>Personal Information</CardTitle>
           </CardHeader>
           <CardContent>
             {patientProfile ? (
@@ -161,8 +161,11 @@ export default function PatientDashboard() {
                 <p><strong>Address:</strong> {patientProfile.address}</p>
                 <p><strong>Phone:</strong> {patientProfile.phoneNumber}</p>
                 <p><strong>Email:</strong> {patientProfile.email}</p>
-                <p><strong>Profession:</strong> {patientProfile.profession}</p>
-                <p><strong>Workplace:</strong> {patientProfile.workplace}</p>
+                <div className="mt-4 pt-2 border-t">
+                  <h3 className="font-semibold mb-2">Professional Details</h3>
+                  <p><strong>Profession:</strong> {patientProfile.profession || 'Not specified'}</p>
+                  <p><strong>Workplace:</strong> {patientProfile.workplace || 'Not specified'}</p>
+                </div>
               </div>
             ) : (
               <p>No profile found. Please contact your doctor.</p>

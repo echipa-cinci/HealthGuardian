@@ -77,7 +77,7 @@ export const parameters = pgTable("parameters", {
   id: serial("id").primaryKey(),
   patientProfileId: integer("patient_profile_id").references(() => patientProfiles.id),
   ecg: real("ecg"),
-  humidity: real("humidity"),
+  spo2: real("spo2"),
   temperature: real("temperature"),
   pulse: real("pulse"),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
@@ -86,7 +86,7 @@ export const parameters = pgTable("parameters", {
 export const insertParameterSchema = createInsertSchema(parameters).pick({
   patientProfileId: true,
   ecg: true,
-  humidity: true,
+  spo2: true,
   temperature: true,
   pulse: true,
 });

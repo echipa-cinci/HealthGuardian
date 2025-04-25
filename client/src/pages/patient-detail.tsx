@@ -1029,6 +1029,17 @@ const PatientDetail = () => {
                     </Form>
                   </DialogContent>
                 </Dialog>
+                  
+                  {selectedLimitIds.length > 0 && (
+                    <Button
+                      variant="destructive"
+                      onClick={() => deleteParameterLimit.mutate(selectedLimitIds)}
+                      disabled={deleteParameterLimit.isPending}
+                    >
+                      <Trash className="mr-2 h-4 w-4" />
+                      Delete Limit
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
@@ -1078,19 +1089,6 @@ const PatientDetail = () => {
                         ))}
                       </TableBody>
                     </Table>
-                    
-                    {selectedLimitIds.length > 0 && (
-                      <div className="flex justify-end">
-                        <Button
-                          variant="destructive"
-                          onClick={() => deleteParameterLimit.mutate(selectedLimitIds)}
-                          disabled={deleteParameterLimit.isPending}
-                        >
-                          <Trash className="mr-2 h-4 w-4" />
-                          Delete {selectedLimitIds.length > 1 ? `Limits (${selectedLimitIds.length})` : 'Limit'}
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 ) : (
                   <div className="text-center py-10">

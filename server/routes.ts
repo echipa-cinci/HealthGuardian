@@ -587,6 +587,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/alerts/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteAlert(id);
+      res.json({ message: 'Alert deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting alert:', error);
+      res.status(500).json({ message: 'Error deleting alert' });
+    }
+  });
+
   // Dashboard stats
   app.get('/api/stats/dashboard', isAuthenticated, async (req, res) => {
     try {

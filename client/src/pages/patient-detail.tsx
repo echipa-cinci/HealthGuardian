@@ -146,6 +146,7 @@ const PatientDetail = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isAddLimitDialogOpen, setIsAddLimitDialogOpen] = useState(false);
   const [selectedLimitIds, setSelectedLimitIds] = useState<number[]>([]);
+  const [selectedAlertIds, setSelectedAlertIds] = useState<number[]>([]);
 
   const patientId = params?.id ? parseInt(params.id) : 0;
 
@@ -370,6 +371,43 @@ const PatientDetail = () => {
         title: "Success",
         description: "Alert acknowledged",
       });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete alert mutation
+  const deleteAlert = useMutation({
+    mutationFn: async (alertIds: number[]) => {
+      if (alertIds.length === 0) return;
+      
+      // Delete each alert one by one
+      for (const alertId of alertIds) {
+        const res = await fetch(`/api/alerts/${alertId}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error(`Failed to delete alert ${alertId}`);
+      }
+      
+      return { success: true };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [`/api/alerts/${patientId}`],
+      });
+      toast({
+        title: "Success",
+        description: selectedAlertIds.length > 1 
+          ? "Alerts deleted successfully" 
+          : "Alert deleted successfully",
+      });
+      // Clear selected ids after deletion
+      setSelectedAlertIds([]);
     },
     onError: (error) => {
       toast({
@@ -1106,11 +1144,25 @@ const PatientDetail = () => {
 
           <TabsContent value="allAlerts">
             <Card>
-              <CardHeader>
-                <CardTitle>Alert History</CardTitle>
-                <CardDescription>
-                  View all alerts for this patient
-                </CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Alert History</CardTitle>
+                  <CardDescription>
+                    View all alerts for this patient
+                  </CardDescription>
+                </div>
+                <div className="flex gap-2">
+                  {selectedAlertIds.length > 0 && (
+                    <Button
+                      variant="destructive"
+                      onClick={() => deleteAlert.mutate(selectedAlertIds)}
+                      disabled={deleteAlert.isPending}
+                    >
+                      <Trash className="mr-2 h-4 w-4" />
+                      Delete {selectedAlertIds.length > 1 ? `Alerts (${selectedAlertIds.length})` : 'Alert'}
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 {isLoadingAlerts ? (
@@ -1119,6 +1171,7 @@ const PatientDetail = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-12"></TableHead>
                         <TableHead>Date & Time</TableHead>
                         <TableHead>Parameter</TableHead>
                         <TableHead>Value</TableHead>
@@ -1131,6 +1184,20 @@ const PatientDetail = () => {
                     <TableBody>
                       {alerts.map((alert) => (
                         <TableRow key={alert.id}>
+                          <TableCell>
+                            <input 
+                              type="checkbox" 
+                              checked={selectedAlertIds.includes(alert.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedAlertIds([...selectedAlertIds, alert.id]);
+                                } else {
+                                  setSelectedAlertIds(selectedAlertIds.filter(id => id !== alert.id));
+                                }
+                              }}
+                              className="h-4 w-4"
+                            />
+                          </TableCell>
                           <TableCell>
                             {format(
                               new Date(alert.timestamp),

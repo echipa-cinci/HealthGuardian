@@ -47,6 +47,7 @@ export interface IStorage {
   getActiveAlertsByDoctorId(doctorId: number): Promise<Alert[]>;
   createAlert(alert: InsertAlert): Promise<Alert>;
   updateAlert(id: number, alert: Partial<InsertAlert>): Promise<Alert | undefined>;
+  deleteAlert(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -313,6 +314,12 @@ export class DatabaseStorage implements IStorage {
       .where(eq(alerts.id, id))
       .returning();
     return alert;
+  }
+  
+  async deleteAlert(id: number): Promise<void> {
+    await db
+      .delete(alerts)
+      .where(eq(alerts.id, id));
   }
 }
 

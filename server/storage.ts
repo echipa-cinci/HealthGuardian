@@ -151,10 +151,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deletePatientProfile(patientProfileId: number): Promise<void> {
-    await db.delete(parameters).where(eq(parameters.patientProfileId, patientProfileId));
-    await db.delete(recommendations).where(eq(recommendations.patientProfileId, patientProfileId));
-    await db.delete(alerts).where(eq(alerts.patientProfileId, patientProfileId));
-    await db.delete(patientProfiles).where(eq(patientProfiles.id, patientProfileId));
+    try {
+      // Delete in the correct order to resolve foreign key constraints
+      // Delete parameter limits first as it references the patient profile
+      await db.delete(parameterLimits).where(eq(parameterLimits.patientProfileId, patientProfileId));
+      
+      // Delete remaining related data
+      await db.delete(parameters).where(eq(parameters.patientProfileId, patientProfileId));
+      await db.delete(recommendations).where(eq(recommendations.patientProfileId, patientProfileId));
+      await db.delete(alerts).where(eq(alerts.patientProfileId, patientProfileId));
+      
+      // Finally delete the patient profile itself
+      await db.delete(patientProfiles).where(eq(patientProfiles.id, patientProfileId));
+      
+      console.log(`Successfully deleted patient profile with ID: ${patientProfileId}`);
+    } catch (error) {
+      console.error(`Error deleting patient profile: ${error}`);
+      throw error;
+    }
   }
 
   async getPatientProfilesCount(): Promise<number> {

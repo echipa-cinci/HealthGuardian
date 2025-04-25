@@ -175,7 +175,7 @@ const Dashboard = () => {
         .map(() => ({
           patientProfileId: profileId,
           ecg: Math.floor(Math.random() * 15) + 70,
-          humidity: Math.floor(Math.random() * 20) + 40,
+          spo2: Math.floor(Math.random() * 20) + 40,
           temperature: 36.5 + Math.random() * 1.5,
           pulse: Math.floor(Math.random() * 15) + 65,
         }));

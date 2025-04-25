@@ -90,7 +90,7 @@ type Parameter = {
   id: number;
   patientProfileId: number;
   ecg: number;
-  humidity: number;
+  spo2: number;
   temperature: number;
   pulse: number;
   timestamp: string;
@@ -348,7 +348,7 @@ const PatientDetail = () => {
       timestamp: format(new Date(param.timestamp), "HH:mm:ss"),
       temperature: param.temperature,
       pulse: param.pulse,
-      humidity: param.humidity,
+      spo2: param.spo2,
       ecg: param.ecg,
     }));
 

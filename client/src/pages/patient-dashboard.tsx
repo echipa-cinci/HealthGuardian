@@ -28,7 +28,7 @@ type Parameter = {
   id: number;
   patientProfileId: number;
   ecg: number;
-  humidity: number;
+  spo2: number;
   temperature: number;
   pulse: number;
   timestamp: string;
@@ -139,9 +139,9 @@ export default function PatientDashboard() {
     value: p.ecg
   }));
 
-  const humidityData = parameters.map(p => ({
+  const spo2Data = parameters.map(p => ({
     timestamp: new Date(p.timestamp).toLocaleDateString(),
-    value: p.humidity
+    value: p.spo2
   }));
 
   return (
@@ -284,16 +284,16 @@ export default function PatientDashboard() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Humidity History</CardTitle>
+                  <CardTitle>SPO2 History</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={humidityData}>
+                    <LineChart data={spo2Data}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="timestamp" />
                       <YAxis />
                       <Tooltip />
-                      <Line type="monotone" dataKey="value" stroke="#9C27B0" name="Humidity" />
+                      <Line type="monotone" dataKey="value" stroke="#9C27B0" name="SPO2" />
                     </LineChart>
                   </ResponsiveContainer>
                 </CardContent>

@@ -192,6 +192,17 @@ const PatientDetail = () => {
     enabled: !!patientId,
   });
 
+  // Fetch recommendations
+  const { data: recommendations = [], isLoading: isLoadingRecommendations } = useQuery({
+    queryKey: [`/api/recommendations/${patientId}`],
+    queryFn: async () => {
+      const res = await fetch(`/api/recommendations/${patientId}`);
+      if (!res.ok) throw new Error("Failed to fetch recommendations");
+      return res.json();
+    },
+    enabled: !!patientId,
+  });
+
   // Fetch alerts
   const { data: alerts = [], isLoading: isLoadingAlerts } = useQuery({
     queryKey: [`/api/alerts/${patientId}`],
@@ -361,7 +372,7 @@ const PatientDetail = () => {
     addParameterLimit.mutate(data);
   };
 
-  if (isLoadingPatient) {
+  if (isLoadingPatient || isLoadingRecommendations) {
     return (
       <div className="p-6">
         <Skeleton className="h-12 w-[250px] mb-6" />
@@ -989,6 +1000,24 @@ const PatientDetail = () => {
                   <p className="whitespace-pre-line">
                     {patient.consultations || "No consultations recorded"}
                   </p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium mb-2">Recommendations</h3>
+                  {recommendations.length > 0 ? (
+                    <div className="space-y-3">
+                      {recommendations.map((recommendation: Recommendation) => (
+                        <div key={recommendation.id} className="p-3 border rounded-lg">
+                          <h4 className="font-semibold text-md">{recommendation.type}</h4>
+                          <p className="text-gray-700 whitespace-pre-line">{recommendation.description}</p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {format(new Date(recommendation.createdAt), "MMM d, yyyy HH:mm")}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-600">No recommendations recorded</p>
+                  )}
                 </div>
               </CardContent>
             </Card>

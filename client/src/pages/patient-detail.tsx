@@ -728,13 +728,54 @@ const PatientDetail = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <dl className="space-y-2">
+              <dl className="space-y-4">
                 <div>
                   <dt className="text-sm font-medium text-gray-500 mb-1">
                     Allergies:
                   </dt>
                   <dd className="text-sm">
                     {patient.allergies || "None recorded"}
+                  </dd>
+                </div>
+                
+                <div>
+                  <dt className="text-sm font-medium text-gray-500 mb-1">
+                    Medical History:
+                  </dt>
+                  <dd className="text-sm">
+                    {patient.medicalHistory || "No medical history recorded"}
+                  </dd>
+                </div>
+                
+                <div>
+                  <dt className="text-sm font-medium text-gray-500 mb-1">
+                    Consultations:
+                  </dt>
+                  <dd className="text-sm">
+                    {patient.consultations || "None recorded"}
+                  </dd>
+                </div>
+                
+                <div>
+                  <dt className="text-sm font-medium text-gray-500 mb-1">
+                    Recommendations:
+                  </dt>
+                  <dd className="text-sm">
+                    {recommendations.length > 0 ? (
+                      <div className="space-y-2">
+                        {recommendations.map((recommendation) => (
+                          <div key={recommendation.id} className="p-2 border rounded-lg">
+                            <div className="font-medium">{recommendation.type}</div>
+                            <div className="text-sm">{recommendation.description}</div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {format(new Date(recommendation.createdAt), "MMM d, yyyy HH:mm")}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      "No recommendations recorded"
+                    )}
                   </dd>
                 </div>
               </dl>
@@ -787,7 +828,6 @@ const PatientDetail = () => {
           <TabsList>
             <TabsTrigger value="parameters">Parameters</TabsTrigger>
             <TabsTrigger value="limits">Parameter Limits</TabsTrigger>
-            <TabsTrigger value="medical">Medical History</TabsTrigger>
             <TabsTrigger value="allAlerts">All Alerts</TabsTrigger>
           </TabsList>
 
@@ -1034,45 +1074,7 @@ const PatientDetail = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="medical">
-            <Card>
-              <CardHeader>
-                <CardTitle>Medical History</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Medical History</h3>
-                  <p className="whitespace-pre-line">
-                    {patient.medicalHistory || "No medical history recorded"}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Consultations</h3>
-                  <p className="whitespace-pre-line">
-                    {patient.consultations || "No consultations recorded"}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Recommendations</h3>
-                  {recommendations.length > 0 ? (
-                    <div className="space-y-3">
-                      {recommendations.map((recommendation: Recommendation) => (
-                        <div key={recommendation.id} className="p-3 border rounded-lg">
-                          <h4 className="font-semibold text-md">{recommendation.type}</h4>
-                          <p className="text-gray-700 whitespace-pre-line">{recommendation.description}</p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {format(new Date(recommendation.createdAt), "MMM d, yyyy HH:mm")}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-600">No recommendations recorded</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+
 
           <TabsContent value="allAlerts">
             <Card>

@@ -145,6 +145,7 @@ const PatientDetail = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isAddLimitDialogOpen, setIsAddLimitDialogOpen] = useState(false);
+  const [selectedLimitIds, setSelectedLimitIds] = useState<number[]>([]);
 
   const patientId = params?.id ? parseInt(params.id) : 0;
 
@@ -313,12 +314,18 @@ const PatientDetail = () => {
   
   // Delete parameter limit mutation
   const deleteParameterLimit = useMutation({
-    mutationFn: async (limitId: number) => {
-      const res = await fetch(`/api/parameter-limits/${limitId}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Failed to delete parameter limit");
-      return res.json();
+    mutationFn: async (limitIds: number[]) => {
+      if (limitIds.length === 0) return;
+      
+      // Delete each limit one by one
+      for (const limitId of limitIds) {
+        const res = await fetch(`/api/parameter-limits/${limitId}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error(`Failed to delete parameter limit ${limitId}`);
+      }
+      
+      return { success: true };
     },
     onSuccess: () => {
       // Invalidate both parameter limits and alerts queries
@@ -330,8 +337,12 @@ const PatientDetail = () => {
       });
       toast({
         title: "Success",
-        description: "Parameter limit removed and alerts updated",
+        description: selectedLimitIds.length > 1 
+          ? "Parameter limits removed and alerts updated" 
+          : "Parameter limit removed and alerts updated",
       });
+      // Clear selected ids after deletion
+      setSelectedLimitIds([]);
     },
     onError: (error) => {
       toast({
@@ -930,16 +941,6 @@ const PatientDetail = () => {
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">
-                  {parameterLimits.length > 0 && (
-                    <Button
-                      variant="destructive"
-                      onClick={() => deleteParameterLimit.mutate(parameterLimits[0].id)}
-                      disabled={deleteParameterLimit.isPending}
-                    >
-                      <Trash className="mr-2 h-4 w-4" />
-                      Delete Limit
-                    </Button>
-                  )}
                   <Dialog
                     open={isAddLimitDialogOpen}
                     onOpenChange={setIsAddLimitDialogOpen}
@@ -1034,34 +1035,63 @@ const PatientDetail = () => {
                 {isLoadingLimits ? (
                   <Skeleton className="h-20 w-full" />
                 ) : parameterLimits.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Parameter</TableHead>
-                        <TableHead>Min Value</TableHead>
-                        <TableHead>Max Value</TableHead>
-                        <TableHead>Last Updated</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {parameterLimits.map((limit) => (
-                        <TableRow key={limit.id}>
-                          <TableCell className="capitalize">
-                            {limit.parameterName}
-                          </TableCell>
-                          <TableCell>{limit.minValue}</TableCell>
-                          <TableCell>{limit.maxValue}</TableCell>
-                          <TableCell>
-                            {format(
-                              new Date(limit.updatedAt),
-                              "MMM d, yyyy HH:mm",
-                            )}
-                          </TableCell>
-
+                  <div className="space-y-4">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-12"></TableHead>
+                          <TableHead>Parameter</TableHead>
+                          <TableHead>Min Value</TableHead>
+                          <TableHead>Max Value</TableHead>
+                          <TableHead>Last Updated</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {parameterLimits.map((limit) => (
+                          <TableRow key={limit.id}>
+                            <TableCell>
+                              <input 
+                                type="checkbox" 
+                                checked={selectedLimitIds.includes(limit.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedLimitIds([...selectedLimitIds, limit.id]);
+                                  } else {
+                                    setSelectedLimitIds(selectedLimitIds.filter(id => id !== limit.id));
+                                  }
+                                }}
+                                className="h-4 w-4"
+                              />
+                            </TableCell>
+                            <TableCell className="capitalize">
+                              {limit.parameterName}
+                            </TableCell>
+                            <TableCell>{limit.minValue}</TableCell>
+                            <TableCell>{limit.maxValue}</TableCell>
+                            <TableCell>
+                              {format(
+                                new Date(limit.updatedAt),
+                                "MMM d, yyyy HH:mm",
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    
+                    {selectedLimitIds.length > 0 && (
+                      <div className="flex justify-end">
+                        <Button
+                          variant="destructive"
+                          onClick={() => deleteParameterLimit.mutate(selectedLimitIds)}
+                          disabled={deleteParameterLimit.isPending}
+                        >
+                          <Trash className="mr-2 h-4 w-4" />
+                          Delete {selectedLimitIds.length > 1 ? `Limits (${selectedLimitIds.length})` : 'Limit'}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div className="text-center py-10">
                     <p className="text-gray-500">No parameter limits defined</p>

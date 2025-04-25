@@ -417,6 +417,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/parameter-limits', isAuthenticated, validateRequest(insertParameterLimitSchema), async (req, res) => {
     try {
       const parameterLimit = await storage.createParameterLimit(req.body);
+      
+      // Check all existing parameters against this new limit
+      const patientProfileId = req.body.patientProfileId;
+      const parameterName = req.body.parameterName;
+      const minValue = req.body.minValue;
+      const maxValue = req.body.maxValue;
+      
+      // Get all parameters for this patient
+      const parameters = await storage.getParametersByPatientProfileId(patientProfileId);
+      
+      // Check each parameter against the new limit
+      for (const parameter of parameters) {
+        const paramValue = parameter[parameterName as keyof typeof parameter];
+        
+        if (typeof paramValue === 'number') {
+          // Check min value
+          if (paramValue < minValue) {
+            await storage.createAlert({
+              patientProfileId,
+              parameterName,
+              value: paramValue,
+              limitValue: minValue,
+              limitType: 'minimum',
+              status: 'active'
+            });
+          }
+          
+          // Check max value
+          if (paramValue > maxValue) {
+            await storage.createAlert({
+              patientProfileId,
+              parameterName,
+              value: paramValue,
+              limitValue: maxValue,
+              limitType: 'maximum',
+              status: 'active'
+            });
+          }
+        }
+      }
+      
       res.status(201).json(parameterLimit);
     } catch (error) {
       console.error('Error creating parameter limit:', error);

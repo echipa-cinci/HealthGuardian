@@ -881,16 +881,27 @@ const PatientDetail = () => {
                     Set thresholds for patient parameters to trigger alerts
                   </CardDescription>
                 </div>
-                <Dialog
-                  open={isAddLimitDialogOpen}
-                  onOpenChange={setIsAddLimitDialogOpen}
-                >
-                  <DialogTrigger asChild>
-                    <Button>
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Add Limit
+                <div className="flex gap-2">
+                  {parameterLimits.length > 0 && (
+                    <Button
+                      variant="destructive"
+                      onClick={() => deleteParameterLimit.mutate(parameterLimits[0].id)}
+                      disabled={deleteParameterLimit.isPending}
+                    >
+                      <Trash className="mr-2 h-4 w-4" />
+                      Delete Limit
                     </Button>
-                  </DialogTrigger>
+                  )}
+                  <Dialog
+                    open={isAddLimitDialogOpen}
+                    onOpenChange={setIsAddLimitDialogOpen}
+                  >
+                    <DialogTrigger asChild>
+                      <Button>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Limit
+                      </Button>
+                    </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Add Parameter Limit</DialogTitle>
@@ -969,6 +980,7 @@ const PatientDetail = () => {
                     </Form>
                   </DialogContent>
                 </Dialog>
+                </div>
               </CardHeader>
               <CardContent>
                 {isLoadingLimits ? (
@@ -981,7 +993,6 @@ const PatientDetail = () => {
                         <TableHead>Min Value</TableHead>
                         <TableHead>Max Value</TableHead>
                         <TableHead>Last Updated</TableHead>
-                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -998,17 +1009,7 @@ const PatientDetail = () => {
                               "MMM d, yyyy HH:mm",
                             )}
                           </TableCell>
-                          <TableCell>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => deleteParameterLimit.mutate(limit.id)}
-                              disabled={deleteParameterLimit.isPending}
-                            >
-                              <Trash className="h-4 w-4 mr-1" />
-                              Delete
-                            </Button>
-                          </TableCell>
+
                         </TableRow>
                       ))}
                     </TableBody>

@@ -450,7 +450,7 @@ const PatientDetail = () => {
           <div className="flex gap-2">
             <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="outline">
+                <Button>
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Patient
                 </Button>

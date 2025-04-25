@@ -694,6 +694,22 @@ const PatientDetail = () => {
                   </dd>
                 </div>
                 <div className="flex justify-between">
+                  <dt className="text-sm font-medium text-gray-500">
+                    Profession:
+                  </dt>
+                  <dd className="text-sm text-right">
+                    {patient.profession || "N/A"}
+                  </dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-sm font-medium text-gray-500">
+                    Workplace:
+                  </dt>
+                  <dd className="text-sm text-right">
+                    {patient.workplace || "N/A"}
+                  </dd>
+                </div>
+                <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">Status:</dt>
                   <dd className="text-sm text-right">
                     <Badge variant={patient.isActive ? "default" : "secondary"}>
@@ -713,22 +729,6 @@ const PatientDetail = () => {
             </CardHeader>
             <CardContent>
               <dl className="space-y-2">
-                <div className="flex justify-between">
-                  <dt className="text-sm font-medium text-gray-500">
-                    Profession:
-                  </dt>
-                  <dd className="text-sm text-right">
-                    {patient.profession || "N/A"}
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-sm font-medium text-gray-500">
-                    Workplace:
-                  </dt>
-                  <dd className="text-sm text-right">
-                    {patient.workplace || "N/A"}
-                  </dd>
-                </div>
                 <div>
                   <dt className="text-sm font-medium text-gray-500 mb-1">
                     Allergies:

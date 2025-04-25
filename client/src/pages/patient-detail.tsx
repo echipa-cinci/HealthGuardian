@@ -289,12 +289,16 @@ const PatientDetail = () => {
       return res.json();
     },
     onSuccess: () => {
+      // Invalidate both parameter limits and alerts to refresh both
       queryClient.invalidateQueries({
         queryKey: [`/api/parameter-limits/${patientId}`],
       });
+      queryClient.invalidateQueries({
+        queryKey: [`/api/alerts/${patientId}`],
+      });
       toast({
         title: "Success",
-        description: "Parameter limit added",
+        description: "Parameter limit added and alerts updated",
       });
       setIsAddLimitDialogOpen(false);
     },
@@ -317,12 +321,16 @@ const PatientDetail = () => {
       return res.json();
     },
     onSuccess: () => {
+      // Invalidate both parameter limits and alerts queries
       queryClient.invalidateQueries({
         queryKey: [`/api/parameter-limits/${patientId}`],
       });
+      queryClient.invalidateQueries({
+        queryKey: [`/api/alerts/${patientId}`],
+      });
       toast({
         title: "Success",
-        description: "Parameter limit removed",
+        description: "Parameter limit removed and alerts updated",
       });
     },
     onError: (error) => {

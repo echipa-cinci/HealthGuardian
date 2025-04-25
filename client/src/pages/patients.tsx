@@ -556,7 +556,7 @@ const Patients = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Phone</TableHead>
-                  <TableHead>Date of Birth</TableHead>
+                  <TableHead>Age</TableHead>
                   <TableHead>Added</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -598,9 +598,7 @@ const Patients = () => {
                       </TableCell>
                       <TableCell>{patient.phoneNumber}</TableCell>
                       <TableCell>
-                        {patient.dateOfBirth
-                          ? format(new Date(patient.dateOfBirth), "MMM d, yyyy")
-                          : "N/A"}
+                        {patient.age ? `${patient.age}` : "N/A"}
                       </TableCell>
                       <TableCell>
                         {format(new Date(patient.createdAt), "MMM d, yyyy")}

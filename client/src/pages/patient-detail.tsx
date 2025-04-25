@@ -48,6 +48,7 @@ import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Recommendation } from "@shared/schema";
 import {
   LineChart,
   Line,
@@ -294,6 +295,33 @@ const PatientDetail = () => {
         description: "Parameter limit added",
       });
       setIsAddLimitDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Delete parameter limit mutation
+  const deleteParameterLimit = useMutation({
+    mutationFn: async (limitId: number) => {
+      const res = await fetch(`/api/parameter-limits/${limitId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete parameter limit");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [`/api/parameter-limits/${patientId}`],
+      });
+      toast({
+        title: "Success",
+        description: "Parameter limit removed",
+      });
     },
     onError: (error) => {
       toast({
@@ -951,6 +979,7 @@ const PatientDetail = () => {
                         <TableHead>Min Value</TableHead>
                         <TableHead>Max Value</TableHead>
                         <TableHead>Last Updated</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -966,6 +995,17 @@ const PatientDetail = () => {
                               new Date(limit.updatedAt),
                               "MMM d, yyyy HH:mm",
                             )}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => deleteParameterLimit.mutate(limit.id)}
+                              disabled={deleteParameterLimit.isPending}
+                            >
+                              <Trash className="h-4 w-4 mr-1" />
+                              Delete
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))}

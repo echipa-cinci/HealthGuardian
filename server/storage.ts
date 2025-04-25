@@ -221,6 +221,12 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return parameterLimit;
   }
+  
+  async deleteParameterLimit(id: number): Promise<void> {
+    await db
+      .delete(parameterLimits)
+      .where(eq(parameterLimits.id, id));
+  }
 
   // Recommendation operations
   async getRecommendationsByPatientProfileId(patientProfileId: number): Promise<Recommendation[]> {

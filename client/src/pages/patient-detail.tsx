@@ -778,7 +778,7 @@ const PatientDetail = () => {
                           />
                           <Line
                             type="monotone"
-                            dataKey="humidity"
+                            dataKey="spo2"
                             stroke="#ffc658"
                           />
                           <Line
@@ -797,7 +797,7 @@ const PatientDetail = () => {
                             <TableHead>Time</TableHead>
                             <TableHead>Temperature</TableHead>
                             <TableHead>Pulse</TableHead>
-                            <TableHead>Humidity</TableHead>
+                            <TableHead>SPO2</TableHead>
                             <TableHead>ECG</TableHead>
                           </TableRow>
                         </TableHeader>
@@ -812,7 +812,7 @@ const PatientDetail = () => {
                               </TableCell>
                               <TableCell>{param.temperature}</TableCell>
                               <TableCell>{param.pulse}</TableCell>
-                              <TableCell>{param.humidity}</TableCell>
+                              <TableCell>{param.spo2}</TableCell>
                               <TableCell>{param.ecg}</TableCell>
                             </TableRow>
                           ))}
@@ -878,7 +878,7 @@ const PatientDetail = () => {
                                     Temperature
                                   </option>
                                   <option value="pulse">Pulse</option>
-                                  <option value="humidity">Humidity</option>
+                                  <option value="spo2">SPO2</option>
                                   <option value="ecg">ECG</option>
                                 </select>
                               </FormControl>

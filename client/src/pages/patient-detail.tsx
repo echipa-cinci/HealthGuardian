@@ -882,16 +882,6 @@ const PatientDetail = () => {
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">
-                  {parameterLimits.length > 0 && (
-                    <Button
-                      variant="destructive"
-                      onClick={() => deleteParameterLimit.mutate(parameterLimits[0].id)}
-                      disabled={deleteParameterLimit.isPending}
-                    >
-                      <Trash className="mr-2 h-4 w-4" />
-                      Delete Limit
-                    </Button>
-                  )}
                   <Dialog
                     open={isAddLimitDialogOpen}
                     onOpenChange={setIsAddLimitDialogOpen}
@@ -902,84 +892,95 @@ const PatientDetail = () => {
                         Add Limit
                       </Button>
                     </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Add Parameter Limit</DialogTitle>
-                      <DialogDescription>
-                        Set a new parameter limit threshold to trigger alerts
-                        when exceeded
-                      </DialogDescription>
-                    </DialogHeader>
-                    <Form {...limitForm}>
-                      <form
-                        onSubmit={limitForm.handleSubmit(onAddLimit)}
-                        className="space-y-4"
-                      >
-                        <FormField
-                          control={limitForm.control}
-                          name="parameterName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Parameter</FormLabel>
-                              <FormControl>
-                                <select
-                                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                  {...field}
-                                >
-                                  <option value="temperature">
-                                    Temperature
-                                  </option>
-                                  <option value="pulse">Pulse</option>
-                                  <option value="spo2">SPO2</option>
-                                  <option value="ecg">ECG</option>
-                                </select>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <div className="grid grid-cols-2 gap-4">
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add Parameter Limit</DialogTitle>
+                        <DialogDescription>
+                          Set a new parameter limit threshold to trigger alerts
+                          when exceeded
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Form {...limitForm}>
+                        <form
+                          onSubmit={limitForm.handleSubmit(onAddLimit)}
+                          className="space-y-4"
+                        >
                           <FormField
                             control={limitForm.control}
-                            name="minValue"
+                            name="parameterName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Minimum Value</FormLabel>
+                                <FormLabel>Parameter</FormLabel>
                                 <FormControl>
-                                  <Input type="number" step="0.1" {...field} />
+                                  <select
+                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    {...field}
+                                  >
+                                    <option value="temperature">
+                                      Temperature
+                                    </option>
+                                    <option value="pulse">Pulse</option>
+                                    <option value="spo2">SPO2</option>
+                                    <option value="ecg">ECG</option>
+                                  </select>
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
-                          <FormField
-                            control={limitForm.control}
-                            name="maxValue"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Maximum Value</FormLabel>
-                                <FormControl>
-                                  <Input type="number" step="0.1" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        <DialogFooter>
-                          <Button
-                            type="submit"
-                            disabled={addParameterLimit.isPending}
-                          >
-                            {addParameterLimit.isPending
-                              ? "Adding..."
-                              : "Add Limit"}
-                          </Button>
-                        </DialogFooter>
-                      </form>
-                    </Form>
-                  </DialogContent>
-                </Dialog>
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={limitForm.control}
+                              name="minValue"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Minimum Value</FormLabel>
+                                  <FormControl>
+                                    <Input type="number" step="0.1" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={limitForm.control}
+                              name="maxValue"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Maximum Value</FormLabel>
+                                  <FormControl>
+                                    <Input type="number" step="0.1" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <DialogFooter>
+                            <Button
+                              type="submit"
+                              disabled={addParameterLimit.isPending}
+                            >
+                              {addParameterLimit.isPending
+                                ? "Adding..."
+                                : "Add Limit"}
+                            </Button>
+                          </DialogFooter>
+                        </form>
+                      </Form>
+                    </DialogContent>
+                  </Dialog>
+                  
+                  {parameterLimits.length > 0 && (
+                    <Button
+                      variant="destructive"
+                      onClick={() => deleteParameterLimit.mutate(parameterLimits[0].id)}
+                      disabled={deleteParameterLimit.isPending}
+                    >
+                      <Trash className="mr-2 h-4 w-4" />
+                      Delete Limit
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
               <CardContent>

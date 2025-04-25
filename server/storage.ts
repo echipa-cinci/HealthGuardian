@@ -35,6 +35,7 @@ export interface IStorage {
   getParameterLimitsByPatientProfileId(patientProfileId: number): Promise<ParameterLimit[]>;
   createParameterLimit(parameterLimit: InsertParameterLimit): Promise<ParameterLimit>;
   updateParameterLimit(id: number, parameterLimit: Partial<InsertParameterLimit>): Promise<ParameterLimit | undefined>;
+  deleteParameterLimit(id: number): Promise<void>;
 
   // Recommendation operations
   getRecommendationsByPatientProfileId(patientProfileId: number): Promise<Recommendation[]>;

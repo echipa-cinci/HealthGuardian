@@ -402,6 +402,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: 'Error updating parameter limit' });
     }
   });
+  
+  app.delete('/api/parameter-limits/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteParameterLimit(id);
+      res.status(200).json({ message: 'Parameter limit deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting parameter limit:', error);
+      res.status(500).json({ message: 'Error deleting parameter limit' });
+    }
+  });
 
   // Recommendations routes
   app.get('/api/recommendations/:patientProfileId', isAuthenticated, async (req, res) => {

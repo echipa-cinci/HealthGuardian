@@ -114,6 +114,8 @@ export const alerts = pgTable("alerts", {
   patientProfileId: integer("patient_profile_id").references(() => patientProfiles.id),
   parameterName: text("parameter_name").notNull(),
   value: real("value"),
+  limitValue: real("limit_value"),
+  limitType: text("limit_type"),
   status: alertStatusEnum("status").notNull().default("active"),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
@@ -122,6 +124,8 @@ export const insertAlertSchema = createInsertSchema(alerts).pick({
   patientProfileId: true,
   parameterName: true,
   value: true,
+  limitValue: true,
+  limitType: true,
   status: true,
 });
 

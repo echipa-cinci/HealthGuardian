@@ -111,6 +111,8 @@ type Alert = {
   patientProfileId: number;
   parameterName: string;
   value: number;
+  limitValue: number;
+  limitType: string;
   status: "active" | "acknowledged";
   timestamp: string;
 };
@@ -1081,6 +1083,8 @@ const PatientDetail = () => {
                         <TableHead>Date & Time</TableHead>
                         <TableHead>Parameter</TableHead>
                         <TableHead>Value</TableHead>
+                        <TableHead>Limit Type</TableHead>
+                        <TableHead>Limit Value</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Action</TableHead>
                       </TableRow>
@@ -1098,6 +1102,12 @@ const PatientDetail = () => {
                             {alert.parameterName}
                           </TableCell>
                           <TableCell>{alert.value}</TableCell>
+                          <TableCell className="capitalize">
+                            {alert.limitType || "N/A"}
+                          </TableCell>
+                          <TableCell>
+                            {alert.limitValue || "N/A"}
+                          </TableCell>
                           <TableCell>
                             <Badge
                               variant={

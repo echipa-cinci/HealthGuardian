@@ -424,17 +424,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const minValue = req.body.minValue;
       const maxValue = req.body.maxValue;
       
+      console.log(`New limit created - PatientId: ${patientProfileId}, Parameter: ${parameterName}, Min: ${minValue}, Max: ${maxValue}`);
+      
       // Get all parameters for this patient
       const parameters = await storage.getParametersByPatientProfileId(patientProfileId);
+      console.log(`Found ${parameters.length} parameters to check against the new limit`);
       
       // Check each parameter against the new limit
       for (const parameter of parameters) {
         const paramValue = parameter[parameterName as keyof typeof parameter];
+        console.log(`Checking parameter ${parameterName}: ${paramValue}`);
         
         if (typeof paramValue === 'number') {
           // Check min value
           if (paramValue < minValue) {
-            await storage.createAlert({
+            console.log(`Alert! ${parameterName} value ${paramValue} is below minimum ${minValue}`);
+            const alert = await storage.createAlert({
               patientProfileId,
               parameterName,
               value: paramValue,
@@ -442,11 +447,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               limitType: 'minimum',
               status: 'active'
             });
+            console.log(`Created alert: ${JSON.stringify(alert)}`);
           }
           
           // Check max value
           if (paramValue > maxValue) {
-            await storage.createAlert({
+            console.log(`Alert! ${parameterName} value ${paramValue} is above maximum ${maxValue}`);
+            const alert = await storage.createAlert({
               patientProfileId,
               parameterName,
               value: paramValue,
@@ -454,6 +461,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               limitType: 'maximum',
               status: 'active'
             });
+            console.log(`Created alert: ${JSON.stringify(alert)}`);
           }
         }
       }

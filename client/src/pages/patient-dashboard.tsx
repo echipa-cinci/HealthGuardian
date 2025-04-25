@@ -81,6 +81,73 @@ export default function PatientDashboard() {
       setPatientProfileId(patientProfile.id);
     }
   }, [patientProfile]);
+  
+  // Setup WebSocket connection for real-time updates
+  useEffect(() => {
+    if (!authData?.authenticated || !authData.user?.id) return;
+    
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+    
+    ws.onopen = () => {
+      console.log("WebSocket connection established");
+      // Register this connection with user ID
+      ws.send(JSON.stringify({
+        type: 'register',
+        userId: authData.user?.id
+      }));
+    };
+    
+    ws.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        console.log("WebSocket message received:", message);
+        
+        if (message.type === 'profile_update' && message.patientProfileId) {
+          // Invalidate all queries related to the patient profile
+          toast({
+            title: "Profile Updated",
+            description: "Your medical information has been updated",
+          });
+          
+          queryClient.invalidateQueries({ 
+            queryKey: ['/api/patient-profiles/user', authData.user?.id] 
+          });
+          
+          if (patientProfileId) {
+            queryClient.invalidateQueries({ 
+              queryKey: ['/api/parameters', patientProfileId]
+            });
+            queryClient.invalidateQueries({ 
+              queryKey: ['/api/recommendations', patientProfileId]
+            });
+            queryClient.invalidateQueries({ 
+              queryKey: ['/api/alerts', patientProfileId]
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error parsing WebSocket message:", error);
+      }
+    };
+    
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+    
+    ws.onclose = () => {
+      console.log("WebSocket connection closed");
+    };
+    
+    // Clean up WebSocket connection when component unmounts
+    return () => {
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+        ws.close();
+      }
+    };
+  }, [authData, queryClient, toast, patientProfileId]);
 
   // Get parameters for patient
   const { data: parameters = [], isLoading: isParametersLoading } = useQuery<Parameter[]>({

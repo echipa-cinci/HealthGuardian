@@ -523,6 +523,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/recommendations', isAuthenticated, validateRequest(insertRecommendationSchema), async (req, res) => {
     try {
       const recommendation = await storage.createRecommendation(req.body);
+      
+      // Get the patient profile to find the user ID
+      if (recommendation.patientProfileId) {
+        const patientProfile = await storage.getPatientProfile(recommendation.patientProfileId);
+        
+        // Notify the patient about the new recommendation
+        if (patientProfile && patientProfile.userId) {
+          if ((global as any).notifyProfileUpdate) {
+            (global as any).notifyProfileUpdate(patientProfile.userId, patientProfile.id);
+          }
+        }
+      }
+      
       res.status(201).json(recommendation);
     } catch (error) {
       console.error('Error creating recommendation:', error);
@@ -572,6 +585,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/alerts', isAuthenticated, validateRequest(insertAlertSchema), async (req, res) => {
     try {
       const alert = await storage.createAlert(req.body);
+      
+      // Get the patient profile to find the user ID
+      if (alert.patientProfileId) {
+        const patientProfile = await storage.getPatientProfile(alert.patientProfileId);
+        
+        // Notify the patient about the new alert
+        if (patientProfile && patientProfile.userId) {
+          if ((global as any).notifyProfileUpdate) {
+            (global as any).notifyProfileUpdate(patientProfile.userId, patientProfile.id);
+          }
+        }
+      }
+      
       res.status(201).json(alert);
     } catch (error) {
       console.error('Error creating alert:', error);

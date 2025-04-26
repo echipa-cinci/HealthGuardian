@@ -6,7 +6,7 @@ import StatCard from "@/components/dashboard/stat-card";
 import ActiveAlertsCard from "@/components/dashboard/active-alerts-card";
 import AddSampleAlerts from "@/components/dashboard/add-sample-alerts";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, BellRing, AlertTriangle, PillIcon } from "lucide-react";
+import { Users, BellRing, Rss, Pill } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -574,13 +574,13 @@ const Dashboard = () => {
                 <StatCard
                   title="Patients with Allergies"
                   value={stats?.patientsWithAllergiesCount || 0}
-                  icon={AlertTriangle}
+                  icon={Rss}
                   color="accent"
                 />
                 <StatCard
-                  title="Under Medication"
+                  title="Patients Under Medication"
                   value={stats?.patientsUnderMedicationCount || 0}
-                  icon={PillIcon}
+                  icon={Pill}
                   color="secondary"
                 />
               </>
@@ -589,10 +589,7 @@ const Dashboard = () => {
           
           {/* Active Alerts List */}
           <div className="mt-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Active Alerts</h2>
-              <AddSampleAlerts />
-            </div>
+            <h2 className="text-xl font-semibold mb-4">Active Alerts</h2>
             <ActiveAlertsCard />
           </div>
         </div>

@@ -221,7 +221,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limit = parseInt(req.query.limit as string) || 10;
       const offset = parseInt(req.query.offset as string) || 0;
       
-      const patientProfiles = await storage.getPatientProfilesByDoctorId(doctorId, limit, offset);
+      const patientProfiles = await storage.getPatientProfilesForDoctor(doctorId, limit, offset);
       res.json(patientProfiles);
     } catch (error) {
       console.error('Error fetching patient profiles by doctor:', error);
@@ -641,7 +641,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!doctorId) {
         return res.json({
           totalPatients: 0,
-          activeAlertsCount: 0
+          activeAlertsCount: 0,
+          patientsWithAllergiesCount: 0
         });
       }
       
@@ -651,9 +652,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get active alerts for doctor's patients
       const activeAlerts = await storage.getActiveAlertsByDoctorId(doctorId);
       
+      // Get count of patients with allergies
+      const patientsWithAllergiesCount = await storage.getPatientsWithAllergiesCountByDoctorId(doctorId);
+      
       res.json({
         totalPatients: patientCount,
-        activeAlertsCount: activeAlerts.length
+        activeAlertsCount: activeAlerts.length,
+        patientsWithAllergiesCount
       });
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);

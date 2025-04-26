@@ -26,6 +26,7 @@ export interface IStorage {
   updatePatientProfile(id: number, patientProfile: Partial<InsertPatientProfile>): Promise<PatientProfile | undefined>;
   getPatientProfilesCount(): Promise<number>;
   getPatientProfilesCountByDoctorId(doctorId: number): Promise<number>;
+  getPatientsWithAllergiesCountByDoctorId(doctorId: number): Promise<number>;
 
   // Parameter operations
   getParametersByPatientProfileId(patientProfileId: number): Promise<Parameter[]>;
@@ -190,6 +191,21 @@ export class DatabaseStorage implements IStorage {
         )
       );
     return result.count;
+  }
+  
+  async getPatientsWithAllergiesCountByDoctorId(doctorId: number): Promise<number> {
+    const profiles = await db
+      .select()
+      .from(patientProfiles)
+      .where(eq(patientProfiles.doctorId, doctorId));
+    
+    // Filter profiles that have non-empty allergies field that's not "none" or "None"
+    const profilesWithAllergies = profiles.filter(profile => {
+      const allergies = profile.allergies?.trim().toLowerCase();
+      return allergies && allergies !== "" && allergies !== "none" && allergies !== "n/a";
+    });
+    
+    return profilesWithAllergies.length;
   }
 
   // Parameter operations

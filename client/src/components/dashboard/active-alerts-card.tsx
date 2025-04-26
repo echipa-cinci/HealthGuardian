@@ -31,7 +31,7 @@ const ActiveAlertsCard = () => {
     const fetchActiveAlerts = async () => {
       try {
         setIsLoading(true);
-        const response = await apiRequest("/api/alerts/active", "GET");
+        const response = await apiRequest("/api/alerts/active/all", "GET");
         setActiveAlerts(response);
       } catch (error) {
         console.error("Error fetching active alerts:", error);

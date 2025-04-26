@@ -583,7 +583,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get all active alerts with patient names (for dashboard)
-  app.get('/api/alerts/active', isAuthenticated, async (req, res) => {
+  app.get('/api/alerts/active/all', isAuthenticated, async (req, res) => {
     try {
       const doctorId = (req.user as any)?.id;
       if (!doctorId) {

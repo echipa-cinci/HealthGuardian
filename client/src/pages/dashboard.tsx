@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StatCard from "@/components/dashboard/stat-card";
+import ActiveAlertsCard from "@/components/dashboard/active-alerts-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users, BellRing, AlertTriangle, PillIcon } from "lucide-react";
 import {
@@ -583,6 +584,11 @@ const Dashboard = () => {
                 />
               </>
             )}
+          </div>
+          
+          {/* Active Alerts List */}
+          <div className="mt-8">
+            <ActiveAlertsCard />
           </div>
         </div>
       </div>

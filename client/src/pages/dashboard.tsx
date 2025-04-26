@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StatCard from "@/components/dashboard/stat-card";
 import ActiveAlertsCard from "@/components/dashboard/active-alerts-card";
+import AddSampleAlerts from "@/components/dashboard/add-sample-alerts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users, BellRing, AlertTriangle, PillIcon } from "lucide-react";
 import {
@@ -588,6 +589,10 @@ const Dashboard = () => {
           
           {/* Active Alerts List */}
           <div className="mt-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Active Alerts</h2>
+              <AddSampleAlerts />
+            </div>
             <ActiveAlertsCard />
           </div>
         </div>

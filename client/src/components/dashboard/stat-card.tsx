@@ -17,7 +17,7 @@ const colorVariants = {
   },
   secondary: {
     bg: "bg-rose-50",
-    text: "text-rose-500",
+    text: "text-rose-300",
   },
   info: {
     bg: "bg-blue-100",

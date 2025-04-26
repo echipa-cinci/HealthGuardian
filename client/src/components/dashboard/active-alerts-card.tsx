@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle } from "lucide-react";
+import { BellRing } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { formatDistance } from "date-fns";
 
@@ -57,7 +57,7 @@ const ActiveAlertsCard = () => {
     <Card className="h-full overflow-hidden">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center text-lg font-semibold">
-          <AlertTriangle className="w-5 h-5 text-yellow-500 mr-2" />
+          <BellRing className="w-5 h-5 text-blue-500 mr-2" />
           Active Alerts
         </CardTitle>
       </CardHeader>
@@ -81,7 +81,7 @@ const ActiveAlertsCard = () => {
             {sortedAlerts.map((alert) => (
               <div key={alert.id} className="grid grid-cols-4 py-3 px-4 text-sm text-gray-800">
                 <div className="flex items-center">
-                  <AlertTriangle className="w-4 h-4 text-yellow-500 mr-2" />
+                  <BellRing className="w-4 h-4 text-blue-500 mr-2" />
                   <span>{alert.patientName || `Patient #${alert.patientProfileId}`}</span>
                 </div>
                 <div>

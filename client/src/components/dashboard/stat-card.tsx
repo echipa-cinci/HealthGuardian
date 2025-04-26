@@ -38,7 +38,7 @@ const StatCard = ({ title, value, icon: Icon, color, link }: StatCardProps) => {
         <div className="p-5">
           <div className="flex items-center">
             <div className={`flex-shrink-0 ${colorClasses.bg} rounded-md p-3`}>
-              <Icon className={`h-6 w-6 ${colorClasses.text}`} />
+              <Icon className={`h-6 w-6 ${colorClasses.text}`} strokeWidth={color === "primary" || color === "secondary" ? 1.5 : 2} fill={color === "primary" || color === "secondary" ? colorClasses.text : "none"} />
             </div>
             <div className="ml-5 w-0 flex-1">
               <div>

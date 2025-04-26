@@ -16,8 +16,8 @@ const colorVariants = {
     text: "text-primary-dark",
   },
   secondary: {
-    bg: "bg-gray-100",
-    text: "text-gray-700",
+    bg: "bg-amber-50",
+    text: "text-amber-600",
   },
   info: {
     bg: "bg-blue-100",

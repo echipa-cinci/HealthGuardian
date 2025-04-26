@@ -125,7 +125,7 @@ const Patients = () => {
   const totalPages = countData ? Math.ceil(countData.count / limit) : 0;
   const [search, setSearch] = useState("");
   const filteredPatients =
-    patients?.filter((patient) =>
+    patients?.filter((patient: any) =>
       `${patient.user?.firstName} ${patient.user?.lastName}`
         .toLowerCase()
         .includes(search.toLowerCase()),
@@ -183,7 +183,7 @@ const Patients = () => {
 
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/patients"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/patients/count"] }); // Add this line
+      queryClient.invalidateQueries({ queryKey: ["/api/patients/count"] }); 
       queryClient.invalidateQueries({ queryKey: ["/api/stats/dashboard"] });
 
       toast({
@@ -209,6 +209,7 @@ const Patients = () => {
         `/api/patient-profiles/${patientId}`,
         "DELETE",
       );
+      return res;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/patients"] });
@@ -267,85 +268,95 @@ const Patients = () => {
   return (
     <main className="flex-1 overflow-y-auto bg-neutral-light p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">Patients</h1>
-          <Dialog open={isAddPatientOpen} onOpenChange={setIsAddPatientOpen}>
-            <DialogTrigger asChild>
-              <Button variant="default">Add Patient</Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Add New Patient</DialogTitle>
-              </DialogHeader>
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-6"
-                >
+        <Dialog open={isAddPatientOpen} onOpenChange={setIsAddPatientOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Add New Patient</DialogTitle>
+            </DialogHeader>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <FormField
+                  control={form.control}
+                  name="userId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Select Patient User</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a patient user" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {patientUsers.map((user: any) => (
+                            <SelectItem key={user.id} value={String(user.id)}>
+                              {user.firstName} {user.lastName} ({user.email})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="userId"
+                    name="age"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Select Patient User</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a patient user" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {patientUsers.map((user) => (
-                              <SelectItem key={user.id} value={String(user.id)}>
-                                {user.firstName} {user.lastName} ({user.email})
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <FormLabel>Age</FormLabel>
+                        <FormControl>
+                          <Input type="number" {...field} />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="age"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Age</FormLabel>
-                          <FormControl>
-                            <Input type="number" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="cnp"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>CNP</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
                   <FormField
                     control={form.control}
-                    name="address"
+                    name="cnp"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Address</FormLabel>
+                        <FormLabel>CNP</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="phoneNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -354,74 +365,30 @@ const Patients = () => {
                     )}
                   />
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="phoneNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone Number</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input type="email" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="profession"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Profession</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="workplace"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Workplace</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
                   <FormField
                     control={form.control}
-                    name="medicalHistory"
+                    name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Medical History</FormLabel>
+                        <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Textarea {...field} />
+                          <Input type="email" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="profession"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Profession</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -430,13 +397,96 @@ const Patients = () => {
 
                   <FormField
                     control={form.control}
-                    name="allergies"
+                    name="workplace"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Allergies</FormLabel>
+                        <FormLabel>Workplace</FormLabel>
                         <FormControl>
-                          <Textarea {...field} />
+                          <Input {...field} />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="medicalHistory"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Medical History</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="allergies"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Allergies</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="consultations"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Previous Consultations</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="border-t pt-6 mt-6">
+                  <h3 className="text-lg font-medium mb-4">
+                    Doctor's Recommendation
+                  </h3>
+
+                  <FormField
+                    control={form.control}
+                    name="recommendationType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Recommendation Type</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select recommendation type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Diet">Diet</SelectItem>
+                            <SelectItem value="Exercise">Exercise</SelectItem>
+                            <SelectItem value="Medication">
+                              Medication
+                            </SelectItem>
+                            <SelectItem value="Lifestyle">
+                              Lifestyle
+                            </SelectItem>
+                            <SelectItem value="Treatment">
+                              Treatment
+                            </SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -444,10 +494,10 @@ const Patients = () => {
 
                   <FormField
                     control={form.control}
-                    name="consultations"
+                    name="recommendationDescription"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Previous Consultations</FormLabel>
+                        <FormLabel>Recommendation Description</FormLabel>
                         <FormControl>
                           <Textarea {...field} />
                         </FormControl>
@@ -455,97 +505,51 @@ const Patients = () => {
                       </FormItem>
                     )}
                   />
+                </div>
 
-                  <div className="border-t pt-6 mt-6">
-                    <h3 className="text-lg font-medium mb-4">
-                      Doctor's Recommendation
-                    </h3>
+                <div className="flex justify-end space-x-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsAddPatientOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={createPatientProfile.isPending}
+                  >
+                    {createPatientProfile.isPending
+                      ? "Adding..."
+                      : "Add Patient"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
 
-                    <FormField
-                      control={form.control}
-                      name="recommendationType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Recommendation Type</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select recommendation type" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="Diet">Diet</SelectItem>
-                              <SelectItem value="Exercise">Exercise</SelectItem>
-                              <SelectItem value="Medication">
-                                Medication
-                              </SelectItem>
-                              <SelectItem value="Lifestyle">
-                                Lifestyle
-                              </SelectItem>
-                              <SelectItem value="Treatment">
-                                Treatment
-                              </SelectItem>
-                              <SelectItem value="Other">Other</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="recommendationDescription"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Recommendation Description</FormLabel>
-                          <FormControl>
-                            <Textarea {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="flex justify-end space-x-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsAddPatientOpen(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={createPatientProfile.isPending}
-                    >
-                      {createPatientProfile.isPending
-                        ? "Adding..."
-                        : "Add Patient"}
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
-        </div>
-        {/* Existing patient list table */}
+        {/* Patient List Card */}
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle>Patient List</CardTitle>
-              <div className="relative w-64">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search patients..."
-                  className="pl-8"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
+              <div className="flex items-center space-x-2">
+                <div className="relative w-64">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search patients..."
+                    className="pl-8"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+                <DialogTrigger asChild>
+                  <Button variant="default">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Patient
+                  </Button>
+                </DialogTrigger>
               </div>
             </div>
           </CardHeader>
@@ -588,7 +592,7 @@ const Patients = () => {
                       </TableRow>
                     ))
                 ) : filteredPatients.length > 0 ? (
-                  filteredPatients.map((patient) => (
+                  filteredPatients.map((patient: any) => (
                     <TableRow key={patient.id}>
                       <TableCell className="font-medium">
                         {patient.user?.firstName} {patient.user?.lastName}
@@ -645,8 +649,11 @@ const Patients = () => {
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                        disabled={page === 1}
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setPage((p) => Math.max(1, p - 1));
+                        }}
                       />
                     </PaginationItem>
 
@@ -665,8 +672,12 @@ const Patients = () => {
                             </PaginationItem>
                           )}
                           <PaginationLink
+                            href="#"
                             isActive={page === p}
-                            onClick={() => setPage(p)}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setPage(p);
+                            }}
                           >
                             {p}
                           </PaginationLink>
@@ -675,10 +686,11 @@ const Patients = () => {
 
                     <PaginationItem>
                       <PaginationNext
-                        onClick={() =>
-                          setPage((p) => Math.min(totalPages, p + 1))
-                        }
-                        disabled={page === totalPages}
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setPage((p) => Math.min(totalPages, p + 1));
+                        }}
                       />
                     </PaginationItem>
                   </PaginationContent>

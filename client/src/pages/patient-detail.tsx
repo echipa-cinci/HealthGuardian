@@ -1068,16 +1068,16 @@ const PatientDetail = () => {
                   </DialogContent>
                 </Dialog>
                   
-                  {selectedLimitIds.length > 0 && (
-                    <Button
-                      variant="destructive"
-                      onClick={() => deleteParameterLimit.mutate(selectedLimitIds)}
-                      disabled={deleteParameterLimit.isPending}
-                    >
-                      <Trash className="mr-2 h-4 w-4" />
-                      Delete Limit
-                    </Button>
-                  )}
+                  <Button
+                    variant="destructive"
+                    onClick={() => deleteParameterLimit.mutate(selectedLimitIds)}
+                    disabled={deleteParameterLimit.isPending || selectedLimitIds.length === 0}
+                  >
+                    <Trash className="mr-2 h-4 w-4" />
+                    {selectedLimitIds.length > 0 
+                      ? `Delete Limit${selectedLimitIds.length > 1 ? 's' : ''} (${selectedLimitIds.length})` 
+                      : 'Delete Limit'}
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent>
@@ -1152,16 +1152,16 @@ const PatientDetail = () => {
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">
-                  {selectedAlertIds.length > 0 && (
-                    <Button
-                      variant="destructive"
-                      onClick={() => deleteAlert.mutate(selectedAlertIds)}
-                      disabled={deleteAlert.isPending}
-                    >
-                      <Trash className="mr-2 h-4 w-4" />
-                      Delete {selectedAlertIds.length > 1 ? `Alerts (${selectedAlertIds.length})` : 'Alert'}
-                    </Button>
-                  )}
+                  <Button
+                    variant="destructive"
+                    onClick={() => deleteAlert.mutate(selectedAlertIds)}
+                    disabled={deleteAlert.isPending || selectedAlertIds.length === 0}
+                  >
+                    <Trash className="mr-2 h-4 w-4" />
+                    {selectedAlertIds.length > 0 
+                     ? `Delete Alert${selectedAlertIds.length > 1 ? 's' : ''} (${selectedAlertIds.length})` 
+                     : 'Delete Alert'}
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent>

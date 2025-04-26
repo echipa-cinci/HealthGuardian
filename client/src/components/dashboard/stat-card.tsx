@@ -7,7 +7,7 @@ interface StatCardProps {
   value: number | string;
   icon: LucideIcon;
   color: "primary" | "secondary" | "info" | "accent";
-  link: string;
+  link?: string;
 }
 
 const colorVariants = {
@@ -48,15 +48,17 @@ const StatCard = ({ title, value, icon: Icon, color, link }: StatCardProps) => {
             </div>
           </div>
         </div>
-        <div className="bg-gray-50 px-5 py-3">
-          <div className="text-sm">
-            <Link href={link}>
-              <a className="font-medium text-primary hover:text-primary-dark">
-                View all
-              </a>
-            </Link>
+        {link && (
+          <div className="bg-gray-50 px-5 py-3">
+            <div className="text-sm">
+              <Link href={link as string}>
+                <a className="font-medium text-primary hover:text-primary-dark">
+                  View all
+                </a>
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );

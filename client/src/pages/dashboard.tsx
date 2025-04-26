@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StatCard from "@/components/dashboard/stat-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, BellRing, Pill } from "lucide-react";
+import { Users, BellRing, AlertTriangle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -567,14 +567,12 @@ const Dashboard = () => {
                   value={stats?.activeAlertsCount || 0}
                   icon={BellRing}
                   color="info"
-                  link="/patients"
                 />
                 <StatCard
                   title="Patients with Allergies"
                   value={stats?.patientsWithAllergiesCount || 0}
-                  icon={Pill}
+                  icon={AlertTriangle}
                   color="accent"
-                  link="/patients"
                 />
               </>
             )}

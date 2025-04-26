@@ -35,7 +35,6 @@ import * as z from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
 import { AuthData } from "@/App";
-import { RecommendationSchema } from "../../shared/schema"; // Adjust the path accordingly
 
 // Patient profile form schema
 const patientProfileSchema = z.object({
@@ -90,6 +89,7 @@ type PatientProfile = {
 type DashboardStats = {
   totalPatients: number;
   activeAlertsCount: number;
+  patientsWithAllergiesCount: number;
 };
 
 const Dashboard = () => {
@@ -547,9 +547,9 @@ const Dashboard = () => {
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Stats Overview */}
-          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2">
+          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {isLoadingStats || isLoadingPatientsCount ? (
-              Array(2)
+              Array(3)
                 .fill(0)
                 .map((_, i) => <Skeleton key={i} className="h-36 rounded-lg" />)
             ) : (
@@ -557,13 +557,22 @@ const Dashboard = () => {
                 <StatCard
                   title="Total Patients"
                   value={stats?.totalPatients || 0}
+                  icon="people"
                   color="primary"
                   link="/patients"
                 />
                 <StatCard
                   title="Active Alerts"
                   value={stats?.activeAlertsCount || 0}
+                  icon="notifications_active"
                   color="primary"
+                  link="/patients"
+                />
+                <StatCard
+                  title="Patients with Allergies"
+                  value={stats?.patientsWithAllergiesCount || 0}
+                  icon="local_pharmacy"
+                  color="accent"
                   link="/patients"
                 />
               </>

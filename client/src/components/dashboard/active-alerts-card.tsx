@@ -72,19 +72,20 @@ const ActiveAlertsCard = () => {
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
-            <div className="grid grid-cols-3 py-2 px-4 bg-gray-50 text-sm font-medium text-gray-500">
+            <div className="grid grid-cols-4 py-2 px-4 bg-gray-50 text-sm font-medium text-gray-500">
               <div>PATIENT</div>
               <div>DATA</div>
               <div>PARAMETRU</div>
+              <div>VALOARE</div>
             </div>
             {sortedAlerts.map((alert) => (
-              <div key={alert.id} className="grid grid-cols-3 py-3 px-4 text-sm text-gray-800">
+              <div key={alert.id} className="grid grid-cols-4 py-3 px-4 text-sm text-gray-800">
                 <div className="flex items-center">
                   <AlertTriangle className="w-4 h-4 text-yellow-500 mr-2" />
                   <span>{alert.patientName || `Patient #${alert.patientProfileId}`}</span>
                 </div>
                 <div>
-                  {formatDistance(new Date(alert.timestamp), new Date(), { addSuffix: true })}
+                  {new Date(alert.timestamp).toLocaleDateString()}
                 </div>
                 <div>
                   <span 
@@ -92,6 +93,11 @@ const ActiveAlertsCard = () => {
                   >
                     {alert.parameterName}
                   </span>
+                </div>
+                <div className="flex items-center font-medium text-red-600">
+                  {alert.value} 
+                  {alert.limitType === "max" ? " > " : " < "} 
+                  {alert.limitValue}
                 </div>
               </div>
             ))}

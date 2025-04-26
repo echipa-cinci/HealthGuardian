@@ -560,28 +560,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Alerts routes
-  app.get('/api/alerts/:patientProfileId', isAuthenticated, async (req, res) => {
-    try {
-      const patientProfileId = parseInt(req.params.patientProfileId);
-      const alerts = await storage.getAlertsByPatientProfileId(patientProfileId);
-      res.json(alerts);
-    } catch (error) {
-      console.error('Error fetching alerts:', error);
-      res.status(500).json({ message: 'Error fetching alerts' });
-    }
-  });
-  
-  app.get('/api/alerts/doctor/:doctorId', isAuthenticated, async (req, res) => {
-    try {
-      const doctorId = parseInt(req.params.doctorId);
-      const alerts = await storage.getActiveAlertsByDoctorId(doctorId);
-      res.json(alerts);
-    } catch (error) {
-      console.error('Error fetching active alerts for doctor:', error);
-      res.status(500).json({ message: 'Error fetching active alerts for doctor' });
-    }
-  });
-  
   // Get all active alerts with patient names (for dashboard)
   app.get('/api/alerts/active/all', isAuthenticated, async (req, res) => {
     try {
@@ -595,6 +573,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching active alerts with patient info:', error);
       res.status(500).json({ message: 'Error fetching active alerts' });
+    }
+  });
+
+  app.get('/api/alerts/doctor/:doctorId', isAuthenticated, async (req, res) => {
+    try {
+      const doctorId = parseInt(req.params.doctorId);
+      const alerts = await storage.getActiveAlertsByDoctorId(doctorId);
+      res.json(alerts);
+    } catch (error) {
+      console.error('Error fetching active alerts for doctor:', error);
+      res.status(500).json({ message: 'Error fetching active alerts for doctor' });
+    }
+  });
+  
+  app.get('/api/alerts/:patientProfileId', isAuthenticated, async (req, res) => {
+    try {
+      const patientProfileId = parseInt(req.params.patientProfileId);
+      const alerts = await storage.getAlertsByPatientProfileId(patientProfileId);
+      res.json(alerts);
+    } catch (error) {
+      console.error('Error fetching alerts:', error);
+      res.status(500).json({ message: 'Error fetching alerts' });
     }
   });
 

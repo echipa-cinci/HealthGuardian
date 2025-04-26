@@ -24,8 +24,8 @@ const colorVariants = {
     text: "text-blue-700",
   },
   accent: {
-    bg: "bg-amber-50",
-    text: "text-amber-500",
+    bg: "bg-orange-100",
+    text: "text-orange-700",
   },
 };
 
@@ -38,7 +38,7 @@ const StatCard = ({ title, value, icon: Icon, color, link }: StatCardProps) => {
         <div className="p-5">
           <div className="flex items-center">
             <div className={`flex-shrink-0 ${colorClasses.bg} rounded-md p-3`}>
-              <Icon className={`h-6 w-6 ${colorClasses.text}`} strokeWidth={color === "primary" || color === "secondary" || color === "accent" ? 1.5 : 2} fill={color === "primary" || color === "secondary" || color === "accent" ? colorClasses.text : "none"} />
+              <Icon className={`h-6 w-6 ${colorClasses.text}`} strokeWidth={color === "primary" || color === "secondary" ? 1.5 : 2} fill={color === "primary" || color === "secondary" ? colorClasses.text : "none"} />
             </div>
             <div className="ml-5 w-0 flex-1">
               <div>

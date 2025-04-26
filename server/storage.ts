@@ -47,6 +47,7 @@ export interface IStorage {
   // Alert operations
   getAlertsByPatientProfileId(patientProfileId: number): Promise<Alert[]>;
   getActiveAlertsByDoctorId(doctorId: number): Promise<Alert[]>;
+  getActiveAlertsWithPatientInfoByDoctorId(doctorId: number): Promise<any[]>;
   createAlert(alert: InsertAlert): Promise<Alert>;
   updateAlert(id: number, alert: Partial<InsertAlert>): Promise<Alert | undefined>;
   deleteAlert(id: number): Promise<void>;
@@ -351,6 +352,48 @@ export class DatabaseStorage implements IStorage {
       )
       .orderBy(desc(alerts.timestamp))
       .then(rows => rows.map(row => row.alert));
+  }
+  
+  async getActiveAlertsWithPatientInfoByDoctorId(doctorId: number): Promise<any[]> {
+    // First get active alerts with patient profiles
+    const results = await db
+      .select({
+        alert: alerts,
+        patientProfile: patientProfiles
+      })
+      .from(alerts)
+      .innerJoin(patientProfiles, eq(alerts.patientProfileId, patientProfiles.id))
+      .where(
+        and(
+          eq(patientProfiles.doctorId, doctorId),
+          eq(alerts.status, "active")
+        )
+      )
+      .orderBy(desc(alerts.timestamp));
+    
+    // For each result, get the user information for the patient
+    const alertsWithPatientInfo = [];
+    for (const result of results) {
+      const { alert, patientProfile } = result;
+      
+      if (patientProfile.userId) {
+        // Get user data for this patient
+        const user = await this.getUser(patientProfile.userId);
+        
+        if (user) {
+          alertsWithPatientInfo.push({
+            ...alert,
+            patientName: `${user.firstName} ${user.lastName}`
+          });
+          continue;
+        }
+      }
+      
+      // If no user found, just add the alert as is
+      alertsWithPatientInfo.push(alert);
+    }
+    
+    return alertsWithPatientInfo;
   }
 
   async createAlert(insertAlert: InsertAlert): Promise<Alert> {

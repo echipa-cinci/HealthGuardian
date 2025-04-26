@@ -581,6 +581,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: 'Error fetching active alerts for doctor' });
     }
   });
+  
+  // Get all active alerts with patient names (for dashboard)
+  app.get('/api/alerts/active', isAuthenticated, async (req, res) => {
+    try {
+      const doctorId = (req.user as any)?.id;
+      if (!doctorId) {
+        return res.status(403).json({ message: 'Not authorized' });
+      }
+      
+      const activeAlerts = await storage.getActiveAlertsWithPatientInfoByDoctorId(doctorId);
+      res.json(activeAlerts);
+    } catch (error) {
+      console.error('Error fetching active alerts with patient info:', error);
+      res.status(500).json({ message: 'Error fetching active alerts' });
+    }
+  });
 
   app.post('/api/alerts', isAuthenticated, validateRequest(insertAlertSchema), async (req, res) => {
     try {

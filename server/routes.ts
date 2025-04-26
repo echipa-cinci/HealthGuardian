@@ -722,8 +722,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create HTTP server
   const server = createServer(app);
   
-  // Create WebSocket server
-  const wss = new WebSocketServer({ server, path: '/ws' });
+  // Create WebSocket server for our app with a specific path that doesn't conflict with Vite
+  const wss = new WebSocketServer({ 
+    server, 
+    path: '/ws',
+    // Skip Vite's HMR and React Refresh polling requests
+    verifyClient: (info) => {
+      const url = new URL(info.req.url || '', 'http://localhost');
+      return url.pathname === '/ws';
+    }
+  });
   
   // Store connected clients
   const clients = new Map<number, WebSocket>();

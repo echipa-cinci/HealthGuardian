@@ -531,21 +531,19 @@ const Patients = () => {
           {/* Patient List Card */}
           <Card>
             <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="relative w-64">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search patients..."
-                      className="pl-8"
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                    />
-                  </div>
-                  <DialogTrigger asChild>
-                    <Button variant="default">Add Patient</Button>
-                  </DialogTrigger>
+              <div className="flex items-center justify-end space-x-4">
+                <div className="relative w-64">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search patients..."
+                    className="pl-8"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
                 </div>
+                <DialogTrigger asChild>
+                  <Button variant="default">Add Patient</Button>
+                </DialogTrigger>
               </div>
             </CardHeader>
             <CardContent>

@@ -589,7 +589,7 @@ const Dashboard = () => {
           
           {/* Active Alerts List */}
           <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Active Alerts</h2>
+
             <ActiveAlertsCard />
           </div>
         </div>

@@ -581,7 +581,7 @@ const Dashboard = () => {
                   title="Patients Under Medication"
                   value={stats?.patientsUnderMedicationCount || 0}
                   icon={Pill}
-                  color="secondary"
+                  color="accent"
                 />
               </>
             )}

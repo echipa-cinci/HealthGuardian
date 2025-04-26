@@ -527,164 +527,164 @@ const Patients = () => {
               </form>
             </Form>
           </DialogContent>
-        </Dialog>
 
-        {/* Patient List Card */}
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-end">
-              <div className="flex items-center space-x-4">
-                <div className="relative w-64">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search patients..."
-                    className="pl-8"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
+          {/* Patient List Card */}
+          <Card>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="relative w-64">
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search patients..."
+                      className="pl-8"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                    />
+                  </div>
+                  <DialogTrigger asChild>
+                    <Button variant="default">Add Patient</Button>
+                  </DialogTrigger>
                 </div>
-                <DialogTrigger asChild>
-                  <Button variant="default">Add Patient</Button>
-                </DialogTrigger>
               </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Age</TableHead>
-                  <TableHead>Added</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  Array(5)
-                    .fill(0)
-                    .map((_, i) => (
-                      <TableRow key={i}>
-                        <TableCell>
-                          <Skeleton className="h-6 w-32" />
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Phone</TableHead>
+                    <TableHead>Age</TableHead>
+                    <TableHead>Added</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    Array(5)
+                      .fill(0)
+                      .map((_, i) => (
+                        <TableRow key={i}>
+                          <TableCell>
+                            <Skeleton className="h-6 w-32" />
+                          </TableCell>
+                          <TableCell>
+                            <Skeleton className="h-6 w-48" />
+                          </TableCell>
+                          <TableCell>
+                            <Skeleton className="h-6 w-32" />
+                          </TableCell>
+                          <TableCell>
+                            <Skeleton className="h-6 w-24" />
+                          </TableCell>
+                          <TableCell>
+                            <Skeleton className="h-6 w-24" />
+                          </TableCell>
+                          <TableCell>
+                            <Skeleton className="h-6 w-24" />
+                          </TableCell>
+                        </TableRow>
+                      ))
+                  ) : filteredPatients.length > 0 ? (
+                    filteredPatients.map((patient: any) => (
+                      <TableRow key={patient.id}>
+                        <TableCell className="font-medium">
+                          {patient.user?.firstName} {patient.user?.lastName}
                         </TableCell>
                         <TableCell>
-                          <Skeleton className="h-6 w-48" />
+                          {patient.user?.email || patient.email}
+                        </TableCell>
+                        <TableCell>{patient.phoneNumber}</TableCell>
+                        <TableCell>
+                          {patient.age ? `${patient.age}` : "N/A"}
                         </TableCell>
                         <TableCell>
-                          <Skeleton className="h-6 w-32" />
+                          {format(new Date(patient.createdAt), "MMM d, yyyy")}
                         </TableCell>
                         <TableCell>
-                          <Skeleton className="h-6 w-24" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-6 w-24" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-6 w-24" />
+                          <div className="flex space-x-2">
+                            <Link href={`/patients/${patient.id}`}>
+                              <Button variant="ghost" size="icon" title="View patient details">
+                                <Eye className="h-5 w-5 text-blue-600" />
+                              </Button>
+                            </Link>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              title="Remove patient"
+                              onClick={() => {
+                                if (
+                                  window.confirm(
+                                    "Are you sure you want to remove this patient?",
+                                  )
+                                ) {
+                                  removePatient.mutate(patient.id);
+                                }
+                              }}
+                            >
+                              <Trash className="h-5 w-5 text-red-600" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
-                ) : filteredPatients.length > 0 ? (
-                  filteredPatients.map((patient: any) => (
-                    <TableRow key={patient.id}>
-                      <TableCell className="font-medium">
-                        {patient.user?.firstName} {patient.user?.lastName}
-                      </TableCell>
-                      <TableCell>
-                        {patient.user?.email || patient.email}
-                      </TableCell>
-                      <TableCell>{patient.phoneNumber}</TableCell>
-                      <TableCell>
-                        {patient.age ? `${patient.age}` : "N/A"}
-                      </TableCell>
-                      <TableCell>
-                        {format(new Date(patient.createdAt), "MMM d, yyyy")}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Link href={`/patients/${patient.id}`}>
-                            <Button variant="ghost" size="icon" title="View patient details">
-                              <Eye className="h-5 w-5 text-blue-600" />
-                            </Button>
-                          </Link>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            title="Remove patient"
-                            onClick={() => {
-                              if (
-                                window.confirm(
-                                  "Are you sure you want to remove this patient?",
-                                )
-                              ) {
-                                removePatient.mutate(patient.id);
-                              }
-                            }}
-                          >
-                            <Trash className="h-5 w-5 text-red-600" />
-                          </Button>
-                        </div>
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-4">
+                        No patients found
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-4">
-                      No patients found
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-            {totalPages > 1 && (
-              <div className="mt-4 flex justify-center">
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      />
-                    </PaginationItem>
+                  )}
+                </TableBody>
+              </Table>
+              {totalPages > 1 && (
+                <div className="mt-4 flex justify-center">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        />
+                      </PaginationItem>
 
-                    {Array.from({ length: totalPages }, (_, i) => i + 1)
-                      .filter(
-                        (p) =>
-                          p === 1 ||
-                          p === totalPages ||
-                          (p >= page - 1 && p <= page + 1),
-                      )
-                      .map((p, i, arr) => (
-                        <PaginationItem key={p}>
-                          {i > 0 && arr[i - 1] !== p - 1 && (
-                            <PaginationItem>
-                              <span className="px-2">...</span>
-                            </PaginationItem>
-                          )}
-                          <PaginationLink
-                            isActive={page === p}
-                            onClick={() => setPage(p)}
-                          >
-                            {p}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ))}
+                      {Array.from({ length: totalPages }, (_, i) => i + 1)
+                        .filter(
+                          (p) =>
+                            p === 1 ||
+                            p === totalPages ||
+                            (p >= page - 1 && p <= page + 1),
+                        )
+                        .map((p, i, arr) => (
+                          <PaginationItem key={p}>
+                            {i > 0 && arr[i - 1] !== p - 1 && (
+                              <PaginationItem>
+                                <span className="px-2">...</span>
+                              </PaginationItem>
+                            )}
+                            <PaginationLink
+                              isActive={page === p}
+                              onClick={() => setPage(p)}
+                            >
+                              {p}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))}
 
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={() =>
-                          setPage((p) => Math.min(totalPages, p + 1))
-                        }
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={() =>
+                            setPage((p) => Math.min(totalPages, p + 1))
+                          }
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </Dialog>
       </div>
     </main>
   );

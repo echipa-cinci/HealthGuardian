@@ -1070,8 +1070,18 @@ const PatientDetail = () => {
                   
                   <Button
                     variant="destructive"
-                    onClick={() => deleteParameterLimit.mutate(selectedLimitIds)}
-                    disabled={deleteParameterLimit.isPending || selectedLimitIds.length === 0}
+                    onClick={() => {
+                      if (selectedLimitIds.length === 0) {
+                        toast({
+                          title: "No limits selected",
+                          description: "Please select at least one parameter limit to delete.",
+                          variant: "destructive"
+                        });
+                      } else {
+                        deleteParameterLimit.mutate(selectedLimitIds);
+                      }
+                    }}
+                    disabled={deleteParameterLimit.isPending}
                   >
                     <Trash className="mr-2 h-4 w-4" />
                     {selectedLimitIds.length > 0 
@@ -1154,8 +1164,18 @@ const PatientDetail = () => {
                 <div className="flex gap-2">
                   <Button
                     variant="destructive"
-                    onClick={() => deleteAlert.mutate(selectedAlertIds)}
-                    disabled={deleteAlert.isPending || selectedAlertIds.length === 0}
+                    onClick={() => {
+                      if (selectedAlertIds.length === 0) {
+                        toast({
+                          title: "No alerts selected",
+                          description: "Please select at least one alert to delete.",
+                          variant: "destructive"
+                        });
+                      } else {
+                        deleteAlert.mutate(selectedAlertIds);
+                      }
+                    }}
+                    disabled={deleteAlert.isPending}
                   >
                     <Trash className="mr-2 h-4 w-4" />
                     {selectedAlertIds.length > 0 

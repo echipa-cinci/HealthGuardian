@@ -27,6 +27,7 @@ export interface IStorage {
   getPatientProfilesCount(): Promise<number>;
   getPatientProfilesCountByDoctorId(doctorId: number): Promise<number>;
   getPatientsWithAllergiesCountByDoctorId(doctorId: number): Promise<number>;
+  getPatientsUnderMedicationCountByDoctorId(doctorId: number): Promise<number>;
 
   // Parameter operations
   getParametersByPatientProfileId(patientProfileId: number): Promise<Parameter[]>;
@@ -206,6 +207,43 @@ export class DatabaseStorage implements IStorage {
     });
     
     return profilesWithAllergies.length;
+  }
+  
+  async getPatientsUnderMedicationCountByDoctorId(doctorId: number): Promise<number> {
+    // First get all patient profiles for this doctor
+    const profiles = await db
+      .select()
+      .from(patientProfiles)
+      .where(eq(patientProfiles.doctorId, doctorId));
+    
+    // Get count of patients with medication recommendations
+    let count = 0;
+    for (const profile of profiles) {
+      // Get recommendations for this patient
+      const patientRecommendations = await db
+        .select()
+        .from(recommendations)
+        .where(eq(recommendations.patientProfileId, profile.id));
+      
+      // Check if any recommendation is a medication recommendation with content
+      const hasMedication = patientRecommendations.some(rec => {
+        const type = rec.type?.trim().toLowerCase();
+        const description = rec.description?.trim().toLowerCase();
+        
+        // Check if it's a medication type recommendation and has non-empty description
+        return (type === 'medication' || type === 'drug' || type === 'medicine') && 
+               description && 
+               description !== '' && 
+               description !== 'none' && 
+               description !== 'n/a';
+      });
+      
+      if (hasMedication) {
+        count++;
+      }
+    }
+    
+    return count;
   }
 
   // Parameter operations

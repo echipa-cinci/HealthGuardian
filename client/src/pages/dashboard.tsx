@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StatCard from "@/components/dashboard/stat-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, BellRing, AlertTriangle } from "lucide-react";
+import { Users, BellRing, AlertTriangle, PillIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -91,6 +91,7 @@ type DashboardStats = {
   totalPatients: number;
   activeAlertsCount: number;
   patientsWithAllergiesCount: number;
+  patientsUnderMedicationCount: number;
 };
 
 const Dashboard = () => {
@@ -548,9 +549,9 @@ const Dashboard = () => {
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Stats Overview */}
-          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {isLoadingStats || isLoadingPatientsCount ? (
-              Array(3)
+              Array(4)
                 .fill(0)
                 .map((_, i) => <Skeleton key={i} className="h-36 rounded-lg" />)
             ) : (
@@ -573,6 +574,12 @@ const Dashboard = () => {
                   value={stats?.patientsWithAllergiesCount || 0}
                   icon={AlertTriangle}
                   color="accent"
+                />
+                <StatCard
+                  title="Under Medication"
+                  value={stats?.patientsUnderMedicationCount || 0}
+                  icon={PillIcon}
+                  color="secondary"
                 />
               </>
             )}

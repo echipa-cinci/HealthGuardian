@@ -642,7 +642,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({
           totalPatients: 0,
           activeAlertsCount: 0,
-          patientsWithAllergiesCount: 0
+          patientsWithAllergiesCount: 0,
+          patientsUnderMedicationCount: 0
         });
       }
       
@@ -655,10 +656,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get count of patients with allergies
       const patientsWithAllergiesCount = await storage.getPatientsWithAllergiesCountByDoctorId(doctorId);
       
+      // Get count of patients under medication
+      const patientsUnderMedicationCount = await storage.getPatientsUnderMedicationCountByDoctorId(doctorId);
+      
       res.json({
         totalPatients: patientCount,
         activeAlertsCount: activeAlerts.length,
-        patientsWithAllergiesCount
+        patientsWithAllergiesCount,
+        patientsUnderMedicationCount
       });
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);

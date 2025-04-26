@@ -21,7 +21,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { format } from "date-fns";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Eye, Trash } from "lucide-react";
 import { Link } from "wouter";
 import {
   Dialog,
@@ -606,10 +606,14 @@ const Patients = () => {
                       <TableCell>
                         <div className="flex space-x-2">
                           <Link href={`/patients/${patient.id}`}>
-                            <Button variant="link">View</Button>
+                            <Button variant="ghost" size="icon" title="View patient details">
+                              <Eye className="h-5 w-5 text-blue-600" />
+                            </Button>
                           </Link>
                           <Button
-                            variant="destructive"
+                            variant="ghost"
+                            size="icon"
+                            title="Remove patient"
                             onClick={() => {
                               if (
                                 window.confirm(
@@ -620,7 +624,7 @@ const Patients = () => {
                               }
                             }}
                           >
-                            Remove
+                            <Trash className="h-5 w-5 text-red-600" />
                           </Button>
                         </div>
                       </TableCell>

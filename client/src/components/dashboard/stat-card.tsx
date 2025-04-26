@@ -1,10 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
+import { LucideIcon } from "lucide-react";
 
 interface StatCardProps {
   title: string;
   value: number | string;
-  icon: string;
+  icon: LucideIcon;
   color: "primary" | "secondary" | "info" | "accent";
   link: string;
 }
@@ -28,7 +29,7 @@ const colorVariants = {
   },
 };
 
-const StatCard = ({ title, value, icon, color, link }: StatCardProps) => {
+const StatCard = ({ title, value, icon: Icon, color, link }: StatCardProps) => {
   const colorClasses = colorVariants[color];
   
   return (
@@ -37,7 +38,7 @@ const StatCard = ({ title, value, icon, color, link }: StatCardProps) => {
         <div className="p-5">
           <div className="flex items-center">
             <div className={`flex-shrink-0 ${colorClasses.bg} rounded-md p-3`}>
-              <span className={`material-icons ${colorClasses.text}`}>{icon}</span>
+              <Icon className={`h-6 w-6 ${colorClasses.text}`} />
             </div>
             <div className="ml-5 w-0 flex-1">
               <div>

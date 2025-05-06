@@ -1,10 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <path d="m8 16 2-6 2 6" />
-  <path d="M2 12h4" />
-  <path d="M18 12h4" />
-  <path d="M12 2v4" />
-  <path d="M12 18v4" />
-  <circle cx="12" cy="12" r="10" />
-  <path d="m16 8-4 4" />
-  <path d="m8 8 4 4" />
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="192px" height="192px" viewBox="0 0 192 192" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <title>HealthGuardian Icon</title>
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <circle fill="#4f46e5" cx="96" cy="96" r="96"/>
+    <path d="M96,50 C110.5,70 133.5,70 149,70 C149,110 133.5,140 96,160 C58.5,140 43,110 43,70 C58.5,70 81.5,70 96,50 Z" fill="#FFFFFF" fill-rule="nonzero"/>
+  </g>
 </svg>

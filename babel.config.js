@@ -3,7 +3,13 @@ module.exports = function(api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [
-      // Add any Babel plugins here when needed
+      // No plugins needed for this simple app
     ],
+    // This is needed for Expo compatibility with React 18
+    env: {
+      production: {
+        plugins: ['react-native-paper/babel'],
+      },
+    },
   };
 };

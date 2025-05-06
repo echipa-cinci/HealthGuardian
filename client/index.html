@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="description" content="A comprehensive medical management platform that facilitates interactions between doctors and patients">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="icon" type="image/svg+xml" href="/medical_services.svg" />
+  <link rel="apple-touch-icon" href="/icons/pwa-192x192.svg">
+  <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -12,5 +18,11 @@
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
+  <noscript>
+    <div style="padding: 2rem; text-align: center;">
+      <h1>JavaScript is required</h1>
+      <p>This application requires JavaScript to function. Please enable JavaScript in your browser settings.</p>
+    </div>
+  </noscript>
 </body>
 </html>

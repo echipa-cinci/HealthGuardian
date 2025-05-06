@@ -4,9 +4,9 @@ export default {
   slug: "healthguardian",
   version: "1.0.0",
   orientation: "portrait",
-  icon: "./assets/icon.png",
+  icon: "./client/public/icons/pwa-512x512.svg",
   splash: {
-    image: "./assets/splash.png",
+    image: "./client/public/icons/pwa-512x512.svg",
     resizeMode: "contain",
     backgroundColor: "#ffffff"
   },
@@ -22,19 +22,20 @@ export default {
   },
   android: {
     adaptiveIcon: {
-      foregroundImage: "./assets/adaptive-icon.png",
+      foregroundImage: "./client/public/icons/pwa-512x512.svg",
       backgroundColor: "#FFFFFF"
     },
     package: "com.healthguardian.app"
   },
   web: {
-    favicon: "./assets/favicon.png"
+    favicon: "./client/public/medical_services.svg"
   },
   extra: {
-    webAppUrl: "https://healthguardian.replit.app",
     eas: {
       projectId: "healthguardian"
     }
   },
-  plugins: []
+  plugins: [
+    // Add any Expo plugins here when needed
+  ]
 };

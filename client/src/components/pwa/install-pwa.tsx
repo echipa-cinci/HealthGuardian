@@ -4,7 +4,7 @@ import { checkInstallStatus, showInstallPrompt } from "@/lib/pwa";
 import { toast } from "@/hooks/use-toast";
 import { Download } from "lucide-react";
 
-export function InstallPWA() {
+export function InstallPWA({ isMobile = false }: { isMobile?: boolean }) {
   const [canInstall, setCanInstall] = useState(false);
 
   useEffect(() => {
@@ -44,6 +44,19 @@ export function InstallPWA() {
 
   if (!canInstall) {
     return null;
+  }
+
+  if (isMobile) {
+    return (
+      <Button
+        variant="ghost"
+        className="w-full justify-start mb-2 flex gap-2"
+        onClick={handleInstall}
+      >
+        <Download className="h-4 w-4" />
+        <span>Install App</span>
+      </Button>
+    );
   }
 
   return (

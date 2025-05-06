@@ -10,6 +10,7 @@ import AuthPage from "@/pages/login"; // We kept the file name but changed the e
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import Header from "@/components/layout/header";
+import { OfflineFallback } from "@/components/pwa/offline-fallback";
 
 export type AuthData = {
   authenticated: boolean;
@@ -103,6 +104,7 @@ function App() {
         <Route path="/settings" component={Settings} />
         <Route component={NotFound} />
       </Switch>
+      <OfflineFallback />
       <Toaster />
     </div>
   );

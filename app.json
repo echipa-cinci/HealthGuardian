@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "HealthGuardian",
+    "slug": "healthguardian",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./client/public/icons/pwa-512x512.svg",
+    "splash": {
+      "image": "./client/public/icons/pwa-512x512.svg",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./client/public/icons/pwa-512x512.svg",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": {
+      "favicon": "./client/public/medical_services.svg"
+    }
+  }
+}

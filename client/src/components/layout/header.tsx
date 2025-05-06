@@ -14,13 +14,23 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { apiRequest } from "@/lib/queryClient";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, Menu } from "lucide-react";
+import { InstallPWA } from "@/components/pwa/install-pwa";
 
 const Header = () => {
   const [location] = useLocation();
   const queryClient = useQueryClient();
   const [mobileOpen, setMobileOpen] = useState(false);
   
-  const { data: authData } = useQuery({
+  const { data: authData } = useQuery<{
+    authenticated: boolean;
+    user?: {
+      id: number;
+      email: string;
+      firstName: string;
+      lastName: string;
+      role: string;
+    };
+  }>({
     queryKey: ['/api/auth/status'],
   });
   
@@ -106,7 +116,9 @@ const Header = () => {
             </nav>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            <Button variant="ghost" size="icon" className="mr-2">
+            <InstallPWA />
+            
+            <Button variant="ghost" size="icon" className="mx-2">
               <Bell className="h-5 w-5 text-gray-500" />
             </Button>
             
@@ -187,6 +199,7 @@ const Header = () => {
                         <p className="text-xs text-gray-500">{user?.role || ""}</p>
                       </div>
                     </div>
+                    <InstallPWA isMobile={true} />
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"

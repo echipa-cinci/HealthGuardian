@@ -1,70 +1,95 @@
-// PWA registration and utilities
+// Global variables to store PWA-related state
+let deferredPrompt: any = null;
+let pwaInstalled = false;
 
+// Register the service worker
 export const registerServiceWorker = async (): Promise<void> => {
   if ('serviceWorker' in navigator) {
     try {
       const registration = await navigator.serviceWorker.register('/service-worker.js', {
-        scope: '/'
+        scope: '/',
       });
       
-      if (registration.installing) {
+      // Check if service worker was successfully registered
+      if (registration.active) {
+        console.log('Service worker already active');
+      } else if (registration.installing) {
         console.log('Service worker installing');
       } else if (registration.waiting) {
-        console.log('Service worker installed');
-      } else if (registration.active) {
-        console.log('Service worker active');
+        console.log('Service worker waiting');
       }
+
+      // Handle service worker updates
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // New service worker is available, notify user to refresh
+              console.log('New service worker available');
+              // You could show a toast notification here
+            }
+          });
+        }
+      });
     } catch (error) {
-      console.error(`Service worker registration failed: ${error}`);
+      console.error('Service worker registration failed:', error);
     }
   } else {
-    console.log('Service workers are not supported by this browser');
+    console.log('Service workers not supported');
   }
 };
 
-// Check if the app is installed or if it can be installed
+// Check if the app can be installed and if it's already installed
 export const checkInstallStatus = (): { isInstalled: boolean, canBeInstalled: boolean } => {
-  // Check if the app is being used in standalone mode (installed)
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+  // Check if app is already installed
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    pwaInstalled = true;
+  }
   
-  // Check for iOS full screen mode (Safari doesn't have matchMedia for standalone)
-  // @ts-ignore - Safari specific property
-  const isInFullScreen = 'standalone' in window.navigator && window.navigator.standalone === true;
-  
-  const isInstalled = isStandalone || isInFullScreen;
-  
-  // PWA can be installed if on a compatible browser and not already installed
-  const canBeInstalled = 'serviceWorker' in navigator && !isInstalled;
-  
-  return { isInstalled, canBeInstalled };
+  // Check if it can be installed (we have a saved prompt)
+  return {
+    isInstalled: pwaInstalled,
+    canBeInstalled: deferredPrompt !== null,
+  };
 };
 
-// Add event listener for install prompt
-let deferredPrompt: any = null;
-
+// Initialize the install prompt listener
 export const initInstallPrompt = (): void => {
+  // Listen for the beforeinstallprompt event
   window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent the mini-infobar from appearing on mobile
+    // Prevent Chrome from automatically showing the prompt
     e.preventDefault();
-    // Stash the event so it can be triggered later
+    // Save the event to use it later
     deferredPrompt = e;
+  });
+
+  // Listen for the appinstalled event
+  window.addEventListener('appinstalled', () => {
+    // The app was successfully installed
+    pwaInstalled = true;
+    deferredPrompt = null;
+    // You could log analytics here
+    console.log('App was installed');
   });
 };
 
-// Show the install prompt
+// Show the install prompt to the user
 export const showInstallPrompt = async (): Promise<boolean> => {
   if (!deferredPrompt) {
     return false;
   }
-  
+
   // Show the install prompt
   deferredPrompt.prompt();
   
   // Wait for the user to respond to the prompt
-  const { outcome } = await deferredPrompt.userChoice;
+  const choiceResult = await deferredPrompt.userChoice;
   
-  // We no longer need the prompt regardless of outcome
+  // Clear the saved prompt
   deferredPrompt = null;
   
-  return outcome === 'accepted';
+  // Return if the app was installed
+  return choiceResult.outcome === 'accepted';
 };

@@ -699,6 +699,49 @@ const PatientDetail = () => {
                         </FormItem>
                       )}
                     />
+                    
+                    {/* Recommendations Section */}
+                    <div>
+                      <div className="mb-2 flex justify-between items-center">
+                        <FormLabel className="text-sm font-medium">Recommendations</FormLabel>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setIsAddRecommendationDialogOpen(true);
+                          }}
+                          className="h-7 text-xs"
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Add New
+                        </Button>
+                      </div>
+                      
+                      <div className="border rounded-md p-3 mb-4">
+                        {isLoadingRecommendations ? (
+                          <Skeleton className="h-20 w-full" />
+                        ) : recommendations.length > 0 ? (
+                          <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                            {recommendations.map((recommendation) => (
+                              <div key={recommendation.id} className="p-2 border rounded-lg">
+                                <div className="font-medium">{recommendation.type}</div>
+                                <div className="text-sm">{recommendation.description}</div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                  {format(new Date(recommendation.createdAt), "MMM d, yyyy HH:mm")}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500 text-center py-4">
+                            No recommendations recorded yet.
+                            Click the Add New button to create a recommendation.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    
                     <FormField
                       control={patientForm.control}
                       name="isActive"

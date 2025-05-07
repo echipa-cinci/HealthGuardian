@@ -21,7 +21,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
-import { AlertCircle, Edit, Trash, PlusCircle, Check } from "lucide-react";
+import { AlertCircle, Edit, Trash, PlusCircle, Check, Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -44,6 +44,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -137,6 +144,11 @@ const parameterLimitSchema = z.object({
   maxValue: z.coerce.number(),
 });
 
+const recommendationSchema = z.object({
+  type: z.string().min(1, "Type is required"),
+  description: z.string().min(1, "Description is required"),
+});
+
 const PatientDetail = () => {
   const [, params] = useRoute<{ id: string }>("/patients/:id");
   const [, navigate] = useLocation();
@@ -145,6 +157,7 @@ const PatientDetail = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isAddLimitDialogOpen, setIsAddLimitDialogOpen] = useState(false);
+  const [isAddRecommendationDialogOpen, setIsAddRecommendationDialogOpen] = useState(false);
   const [selectedLimitIds, setSelectedLimitIds] = useState<number[]>([]);
   const [selectedAlertIds, setSelectedAlertIds] = useState<number[]>([]);
 
@@ -161,6 +174,14 @@ const PatientDetail = () => {
       parameterName: "temperature",
       minValue: 36.0,
       maxValue: 37.5,
+    },
+  });
+  
+  const recommendationForm = useForm<z.infer<typeof recommendationSchema>>({
+    resolver: zodResolver(recommendationSchema),
+    defaultValues: {
+      type: "",
+      description: "",
     },
   });
 
@@ -457,6 +478,44 @@ const PatientDetail = () => {
 
   const onAddLimit = (data: z.infer<typeof parameterLimitSchema>) => {
     addParameterLimit.mutate(data);
+  };
+  
+  // Add recommendation mutation
+  const addRecommendation = useMutation({
+    mutationFn: async (data: z.infer<typeof recommendationSchema>) => {
+      const res = await fetch("/api/recommendations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patientProfileId: patientId,
+          ...data,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to add recommendation");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [`/api/recommendations/${patientId}`],
+      });
+      toast({
+        title: "Success",
+        description: "Recommendation added successfully",
+      });
+      setIsAddRecommendationDialogOpen(false);
+      recommendationForm.reset({ type: "", description: "" });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  const onAddRecommendation = (data: z.infer<typeof recommendationSchema>) => {
+    addRecommendation.mutate(data);
   };
 
   if (isLoadingPatient || isLoadingRecommendations) {
@@ -806,9 +865,20 @@ const PatientDetail = () => {
                 </div>
                 
                 <div>
-                  <dt className="text-sm font-medium text-gray-500 mb-1">
-                    Recommendations:
-                  </dt>
+                  <div className="flex justify-between items-center mb-1">
+                    <dt className="text-sm font-medium text-gray-500">
+                      Recommendations:
+                    </dt>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setIsAddRecommendationDialogOpen(true)}
+                      className="h-7 text-xs"
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Add
+                    </Button>
+                  </div>
                   <dd className="text-sm">
                     {recommendations.length > 0 ? (
                       <div className="space-y-2">
@@ -827,6 +897,76 @@ const PatientDetail = () => {
                     )}
                   </dd>
                 </div>
+                
+                {/* Add Recommendation Dialog */}
+                <Dialog open={isAddRecommendationDialogOpen} onOpenChange={setIsAddRecommendationDialogOpen}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add Recommendation</DialogTitle>
+                      <DialogDescription>
+                        Add a new recommendation for this patient
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Form {...recommendationForm}>
+                      <form
+                        onSubmit={recommendationForm.handleSubmit(onAddRecommendation)}
+                        className="space-y-4"
+                      >
+                        <FormField
+                          control={recommendationForm.control}
+                          name="type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Type</FormLabel>
+                              <FormControl>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  defaultValue={field.value}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select recommendation type" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Medication">Medication</SelectItem>
+                                    <SelectItem value="Exercise">Exercise</SelectItem>
+                                    <SelectItem value="Diet">Diet</SelectItem>
+                                    <SelectItem value="Lifestyle">Lifestyle</SelectItem>
+                                    <SelectItem value="Follow Up">Follow Up</SelectItem>
+                                    <SelectItem value="Other">Other</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={recommendationForm.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Description</FormLabel>
+                              <FormControl>
+                                <Textarea rows={4} {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <DialogFooter>
+                          <Button
+                            type="submit"
+                            disabled={addRecommendation.isPending}
+                          >
+                            {addRecommendation.isPending
+                              ? "Adding..."
+                              : "Add Recommendation"}
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
               </dl>
             </CardContent>
           </Card>

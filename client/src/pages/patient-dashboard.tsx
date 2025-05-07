@@ -298,7 +298,7 @@ export default function PatientDashboard() {
         </Card>
       </div>
 
-      <Tabs defaultValue="parameters" className="mb-6">
+      <Tabs defaultValue="alerts" className="mb-6">
         <TabsList className="mb-4">
           <TabsTrigger value="parameters">Parameters</TabsTrigger>
           <TabsTrigger value="alerts">Alerts</TabsTrigger>

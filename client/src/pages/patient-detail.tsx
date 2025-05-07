@@ -158,6 +158,8 @@ const PatientDetail = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isAddLimitDialogOpen, setIsAddLimitDialogOpen] = useState(false);
   const [isAddRecommendationDialogOpen, setIsAddRecommendationDialogOpen] = useState(false);
+  const [isEditRecommendationDialogOpen, setIsEditRecommendationDialogOpen] = useState(false);
+  const [editingRecommendationId, setEditingRecommendationId] = useState<number | null>(null);
   const [selectedLimitIds, setSelectedLimitIds] = useState<number[]>([]);
   const [selectedAlertIds, setSelectedAlertIds] = useState<number[]>([]);
 
@@ -517,6 +519,50 @@ const PatientDetail = () => {
   const onAddRecommendation = (data: z.infer<typeof recommendationSchema>) => {
     addRecommendation.mutate(data);
   };
+  
+  // Update recommendation mutation
+  const updateRecommendation = useMutation({
+    mutationFn: async (data: z.infer<typeof recommendationSchema> & { id: number }) => {
+      const res = await fetch(`/api/recommendations/${data.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: data.type,
+          description: data.description,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to update recommendation");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [`/api/recommendations/${patientId}`],
+      });
+      toast({
+        title: "Success",
+        description: "Recommendation updated successfully",
+      });
+      setIsEditRecommendationDialogOpen(false);
+      setEditingRecommendationId(null);
+      recommendationForm.reset({ type: "", description: "" });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  const onUpdateRecommendation = (data: z.infer<typeof recommendationSchema>) => {
+    if (editingRecommendationId !== null) {
+      updateRecommendation.mutate({
+        ...data,
+        id: editingRecommendationId,
+      });
+    }
+  };
 
   if (isLoadingPatient || isLoadingRecommendations) {
     return (
@@ -725,7 +771,27 @@ const PatientDetail = () => {
                           <div className="space-y-2 max-h-[200px] overflow-y-auto">
                             {recommendations.map((recommendation) => (
                               <div key={recommendation.id} className="p-2 border rounded-lg">
-                                <div className="font-medium">{recommendation.type}</div>
+                                <div className="flex justify-between items-start">
+                                  <div className="font-medium">{recommendation.type}</div>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="h-6 w-6 p-0"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      // Set the form values to the current recommendation
+                                      recommendationForm.reset({
+                                        type: recommendation.type,
+                                        description: recommendation.description
+                                      });
+                                      // Store the recommendation ID for updating
+                                      setEditingRecommendationId(recommendation.id);
+                                      setIsEditRecommendationDialogOpen(true);
+                                    }}
+                                  >
+                                    <Edit className="h-3 w-3" />
+                                  </Button>
+                                </div>
                                 <div className="text-sm">{recommendation.description}</div>
                                 <div className="text-xs text-gray-500 mt-1">
                                   {format(new Date(recommendation.createdAt), "MMM d, yyyy HH:mm")}
@@ -1004,6 +1070,76 @@ const PatientDetail = () => {
                             {addRecommendation.isPending
                               ? "Adding..."
                               : "Add Recommendation"}
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
+                
+                {/* Edit Recommendation Dialog */}
+                <Dialog open={isEditRecommendationDialogOpen} onOpenChange={setIsEditRecommendationDialogOpen}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Edit Recommendation</DialogTitle>
+                      <DialogDescription>
+                        Update this recommendation
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Form {...recommendationForm}>
+                      <form
+                        onSubmit={recommendationForm.handleSubmit(onUpdateRecommendation)}
+                        className="space-y-4"
+                      >
+                        <FormField
+                          control={recommendationForm.control}
+                          name="type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Type</FormLabel>
+                              <FormControl>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  defaultValue={field.value}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select recommendation type" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Medication">Medication</SelectItem>
+                                    <SelectItem value="Exercise">Exercise</SelectItem>
+                                    <SelectItem value="Diet">Diet</SelectItem>
+                                    <SelectItem value="Lifestyle">Lifestyle</SelectItem>
+                                    <SelectItem value="Follow Up">Follow Up</SelectItem>
+                                    <SelectItem value="Other">Other</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={recommendationForm.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Description</FormLabel>
+                              <FormControl>
+                                <Textarea rows={4} {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <DialogFooter>
+                          <Button
+                            type="submit"
+                            disabled={updateRecommendation.isPending}
+                          >
+                            {updateRecommendation.isPending
+                              ? "Updating..."
+                              : "Update Recommendation"}
                           </Button>
                         </DialogFooter>
                       </form>

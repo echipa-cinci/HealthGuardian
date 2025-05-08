@@ -7,6 +7,9 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { DayPicker } from "react-day-picker";
 import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { apiRequest } from "@/lib/queryClient";
 
 type PatientProfile = {
   id: number;
@@ -53,6 +56,7 @@ type Alert = {
   value: number;
   status: string;
   timestamp: string;
+  patientNote?: string;
 };
 
 export default function PatientDashboard() {

@@ -14,6 +14,7 @@ type ActiveAlert = {
   status: "active" | "acknowledged";
   timestamp: string;
   patientName?: string;
+  patientNote?: string;
 };
 
 const parameterColors: Record<string, string> = {
@@ -72,14 +73,15 @@ const ActiveAlertsCard = () => {
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
-            <div className="grid grid-cols-4 py-2 px-4 bg-gray-50 text-sm font-medium text-gray-500">
+            <div className="grid grid-cols-5 py-2 px-4 bg-gray-50 text-sm font-medium text-gray-500">
               <div>PATIENT</div>
               <div>DATA</div>
               <div>PARAMETRU</div>
               <div>VALOARE</div>
+              <div>PATIENT NOTES</div>
             </div>
             {sortedAlerts.map((alert) => (
-              <div key={alert.id} className="grid grid-cols-4 py-3 px-4 text-sm text-gray-800">
+              <div key={alert.id} className="grid grid-cols-5 py-3 px-4 text-sm text-gray-800">
                 <div className="flex items-center">
                   <BellRing className="w-4 h-4 text-blue-500 mr-2" />
                   <span>{alert.patientName || `Patient #${alert.patientProfileId}`}</span>
@@ -98,6 +100,15 @@ const ActiveAlertsCard = () => {
                   {alert.value} 
                   {alert.limitType === "max" ? " > " : " < "} 
                   {alert.limitValue}
+                </div>
+                <div className="text-sm text-gray-600 overflow-hidden">
+                  {alert.patientNote ? (
+                    <div className="max-h-12 overflow-y-auto">
+                      {alert.patientNote}
+                    </div>
+                  ) : (
+                    <span className="text-gray-400 italic">No patient notes</span>
+                  )}
                 </div>
               </div>
             ))}

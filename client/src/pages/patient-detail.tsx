@@ -122,7 +122,6 @@ type Alert = {
   limitType: string;
   status: "active" | "acknowledged";
   timestamp: string;
-  patientNote?: string;
 };
 
 // Form schemas
@@ -463,10 +462,10 @@ const PatientDetail = () => {
   // Format chart data
   const chartData = parameters
     .sort(
-      (a: Parameter, b: Parameter) =>
+      (a, b) =>
         new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
     )
-    .map((param: Parameter) => ({
+    .map((param) => ({
       timestamp: format(new Date(param.timestamp), "HH:mm:ss"),
       temperature: param.temperature,
       pulse: param.pulse,
@@ -770,7 +769,7 @@ const PatientDetail = () => {
                           <Skeleton className="h-20 w-full" />
                         ) : recommendations.length > 0 ? (
                           <div className="space-y-2 max-h-[200px] overflow-y-auto">
-                            {recommendations.map((recommendation: Recommendation) => (
+                            {recommendations.map((recommendation) => (
                               <div key={recommendation.id} className="p-2 border rounded-lg">
                                 <div className="flex justify-between items-start">
                                   <div className="font-medium">{recommendation.type}</div>
@@ -992,7 +991,7 @@ const PatientDetail = () => {
                   <dd className="text-sm">
                     {recommendations.length > 0 ? (
                       <div className="space-y-2">
-                        {recommendations.map((recommendation: Recommendation) => (
+                        {recommendations.map((recommendation) => (
                           <div key={recommendation.id} className="p-2 border rounded-lg">
                             <div className="font-medium">{recommendation.type}</div>
                             <div className="text-sm">{recommendation.description}</div>
@@ -1158,11 +1157,11 @@ const PatientDetail = () => {
             <CardContent>
               {isLoadingAlerts ? (
                 <Skeleton className="h-20 w-full" />
-              ) : alerts.filter((a: Alert) => a.status === "active").length > 0 ? (
+              ) : alerts.filter((a) => a.status === "active").length > 0 ? (
                 <div className="space-y-2">
                   {alerts
-                    .filter((a: Alert) => a.status === "active")
-                    .map((alert: Alert) => (
+                    .filter((a) => a.status === "active")
+                    .map((alert) => (
                       <Alert
                         key={alert.id}
                         variant="destructive"
@@ -1260,7 +1259,7 @@ const PatientDetail = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {parameters.map((param: Parameter) => (
+                          {parameters.map((param) => (
                             <TableRow key={param.id}>
                               <TableCell>
                                 {format(
@@ -1426,7 +1425,7 @@ const PatientDetail = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {parameterLimits.map((limit: ParameterLimit) => (
+                        {parameterLimits.map((limit) => (
                           <TableRow key={limit.id}>
                             <TableCell>
                               <input 
@@ -1518,12 +1517,11 @@ const PatientDetail = () => {
                         <TableHead>Limit Type</TableHead>
                         <TableHead>Limit Value</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>Patient Notes</TableHead>
                         <TableHead>Action</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {alerts.map((alert: Alert) => (
+                      {alerts.map((alert) => (
                         <TableRow key={alert.id}>
                           <TableCell>
                             <input 
@@ -1567,15 +1565,6 @@ const PatientDetail = () => {
                                 ? "Active"
                                 : "Acknowledged"}
                             </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {alert.patientNote ? (
-                              <div className="max-w-[200px] truncate" title={alert.patientNote}>
-                                {alert.patientNote}
-                              </div>
-                            ) : (
-                              <span className="text-gray-400 italic">No notes</span>
-                            )}
                           </TableCell>
                           <TableCell>
                             {alert.status === "active" && (

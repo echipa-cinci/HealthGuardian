@@ -64,6 +64,8 @@ export default function PatientDashboard() {
   const wsRef = useRef<WebSocket | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [noteInputs, setNoteInputs] = useState<{[key: number]: string}>({});
+  const [savingNotes, setSavingNotes] = useState<{[key: number]: boolean}>({});
 
   // Get authenticated user
   const { data: authData } = useQuery<AuthData>({
@@ -199,6 +201,53 @@ export default function PatientDashboard() {
 
   const formatDateForDisplay = (dateString: string) => {
     return new Date(dateString).toLocaleString();
+  };
+  
+  // Initialize note inputs when alerts data is loaded
+  useEffect(() => {
+    if (alerts && alerts.length > 0) {
+      const initialNoteState: {[key: number]: string} = {};
+      alerts.forEach(alert => {
+        initialNoteState[alert.id] = alert.patientNote || '';
+      });
+      setNoteInputs(initialNoteState);
+    }
+  }, [alerts]);
+  
+  // Handle saving patient notes for alerts
+  const handleSaveNote = async (alertId: number) => {
+    if (!patientProfileId) return;
+    
+    try {
+      setSavingNotes(prev => ({ ...prev, [alertId]: true }));
+      
+      const noteText = noteInputs[alertId] || '';
+      
+      await apiRequest(`/api/alerts/${alertId}`, {
+        method: 'PATCH' as 'POST', // Using type assertion for TypeScript
+        body: JSON.stringify({ patientNote: noteText })
+      });
+      
+      // Success notification
+      toast({
+        title: "Note Saved",
+        description: "Your note has been saved successfully",
+      });
+      
+      // Refresh alerts data
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/alerts', patientProfileId]
+      });
+    } catch (error) {
+      console.error("Error saving note:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save your note. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setSavingNotes(prev => ({ ...prev, [alertId]: false }));
+    }
   };
   
   // Group recommendations by date for the calendar
@@ -517,6 +566,37 @@ export default function PatientDashboard() {
                       </div>
                       <div className="mt-2 text-xs text-gray-500">
                         {formatDateForDisplay(alert.timestamp)}
+                      </div>
+                      
+                      {/* Patient Notes Section */}
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <h4 className="text-sm font-medium mb-2">Your Notes</h4>
+                        <Textarea
+                          placeholder="Add your notes about this alert here..."
+                          value={noteInputs[alert.id] || ''}
+                          onChange={(e) => setNoteInputs(prev => ({
+                            ...prev,
+                            [alert.id]: e.target.value
+                          }))}
+                          className="mb-2 min-h-[80px]"
+                        />
+                        <div className="flex justify-end">
+                          <Button 
+                            size="sm"
+                            onClick={() => handleSaveNote(alert.id)}
+                            disabled={savingNotes[alert.id]}
+                            className="text-xs"
+                          >
+                            {savingNotes[alert.id] ? 'Saving...' : 'Save Note'}
+                          </Button>
+                        </div>
+                        
+                        {alert.patientNote && (
+                          <div className="mt-2 p-2 bg-primary/5 rounded text-sm">
+                            <p className="font-medium text-xs mb-1">Current Note:</p>
+                            <p>{alert.patientNote}</p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}

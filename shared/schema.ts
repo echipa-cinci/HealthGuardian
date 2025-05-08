@@ -117,6 +117,7 @@ export const alerts = pgTable("alerts", {
   limitValue: real("limit_value"),
   limitType: text("limit_type"),
   status: alertStatusEnum("status").notNull().default("active"),
+  patientNote: text("patient_note"),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
@@ -127,6 +128,7 @@ export const insertAlertSchema = createInsertSchema(alerts).pick({
   limitValue: true,
   limitType: true,
   status: true,
+  patientNote: true,
 });
 
 // Type exports

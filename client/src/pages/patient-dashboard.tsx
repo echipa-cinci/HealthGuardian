@@ -223,10 +223,11 @@ export default function PatientDashboard() {
       
       const noteText = noteInputs[alertId] || '';
       
-      await apiRequest(`/api/alerts/${alertId}`, {
-        method: 'PATCH' as 'POST', // Using type assertion for TypeScript
-        body: JSON.stringify({ patientNote: noteText })
-      });
+      await apiRequest(
+        `/api/alerts/${alertId}`,
+        'PUT',
+        { patientNote: noteText }
+      );
       
       // Success notification
       toast({

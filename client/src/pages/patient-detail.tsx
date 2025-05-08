@@ -122,6 +122,7 @@ type Alert = {
   limitType: string;
   status: "active" | "acknowledged";
   timestamp: string;
+  patientNote?: string;
 };
 
 // Form schemas
@@ -1517,6 +1518,7 @@ const PatientDetail = () => {
                         <TableHead>Limit Type</TableHead>
                         <TableHead>Limit Value</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Patient Notes</TableHead>
                         <TableHead>Action</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -1565,6 +1567,17 @@ const PatientDetail = () => {
                                 ? "Active"
                                 : "Acknowledged"}
                             </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {alert.patientNote ? (
+                              <div className="max-w-xs overflow-hidden">
+                                <p className="text-sm text-gray-600 truncate">
+                                  {alert.patientNote}
+                                </p>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 italic text-sm">No notes</span>
+                            )}
                           </TableCell>
                           <TableCell>
                             {alert.status === "active" && (

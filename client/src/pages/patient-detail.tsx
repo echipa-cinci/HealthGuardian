@@ -122,6 +122,7 @@ type Alert = {
   limitType: string;
   status: "active" | "acknowledged";
   timestamp: string;
+  patientNote?: string;
 };
 
 // Form schemas
@@ -462,10 +463,10 @@ const PatientDetail = () => {
   // Format chart data
   const chartData = parameters
     .sort(
-      (a, b) =>
+      (a: Parameter, b: Parameter) =>
         new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
     )
-    .map((param) => ({
+    .map((param: Parameter) => ({
       timestamp: format(new Date(param.timestamp), "HH:mm:ss"),
       temperature: param.temperature,
       pulse: param.pulse,
@@ -1517,6 +1518,7 @@ const PatientDetail = () => {
                         <TableHead>Limit Type</TableHead>
                         <TableHead>Limit Value</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Patient Notes</TableHead>
                         <TableHead>Action</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -1565,6 +1567,15 @@ const PatientDetail = () => {
                                 ? "Active"
                                 : "Acknowledged"}
                             </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {alert.patientNote ? (
+                              <div className="max-w-[200px] truncate" title={alert.patientNote}>
+                                {alert.patientNote}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 italic">No notes</span>
+                            )}
                           </TableCell>
                           <TableCell>
                             {alert.status === "active" && (

@@ -204,13 +204,24 @@ export default function PatientDashboard() {
   };
   
   // Initialize note inputs when alerts data is loaded
+  // Initialize note inputs only on the first load of alerts, not on every update
   useEffect(() => {
     if (alerts && alerts.length > 0) {
-      const initialNoteState: {[key: number]: string} = {};
-      alerts.forEach(alert => {
-        initialNoteState[alert.id] = alert.patientNote || '';
+      // Only initialize note inputs if they haven't been set yet
+      setNoteInputs(prev => {
+        // Check if we already have entries for any alerts
+        const hasExistingEntries = alerts.some(alert => alert.id in prev);
+        
+        // If we already have entries, don't override them
+        if (hasExistingEntries) return prev;
+        
+        // Otherwise initialize with empty strings (not with the patientNote values)
+        const initialNoteState: {[key: number]: string} = {};
+        alerts.forEach(alert => {
+          initialNoteState[alert.id] = '';
+        });
+        return initialNoteState;
       });
-      setNoteInputs(initialNoteState);
     }
   }, [alerts]);
   

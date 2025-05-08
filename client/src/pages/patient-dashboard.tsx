@@ -229,6 +229,12 @@ export default function PatientDashboard() {
         { patientNote: noteText }
       );
       
+      // Clear the input field after successful save
+      setNoteInputs(prev => ({
+        ...prev,
+        [alertId]: '' // Clear the specific note input
+      }));
+      
       // Success notification
       toast({
         title: "Note Saved",

@@ -770,7 +770,7 @@ const PatientDetail = () => {
                           <Skeleton className="h-20 w-full" />
                         ) : recommendations.length > 0 ? (
                           <div className="space-y-2 max-h-[200px] overflow-y-auto">
-                            {recommendations.map((recommendation) => (
+                            {recommendations.map((recommendation: Recommendation) => (
                               <div key={recommendation.id} className="p-2 border rounded-lg">
                                 <div className="flex justify-between items-start">
                                   <div className="font-medium">{recommendation.type}</div>
@@ -992,7 +992,7 @@ const PatientDetail = () => {
                   <dd className="text-sm">
                     {recommendations.length > 0 ? (
                       <div className="space-y-2">
-                        {recommendations.map((recommendation) => (
+                        {recommendations.map((recommendation: Recommendation) => (
                           <div key={recommendation.id} className="p-2 border rounded-lg">
                             <div className="font-medium">{recommendation.type}</div>
                             <div className="text-sm">{recommendation.description}</div>
@@ -1158,11 +1158,11 @@ const PatientDetail = () => {
             <CardContent>
               {isLoadingAlerts ? (
                 <Skeleton className="h-20 w-full" />
-              ) : alerts.filter((a) => a.status === "active").length > 0 ? (
+              ) : alerts.filter((a: Alert) => a.status === "active").length > 0 ? (
                 <div className="space-y-2">
                   {alerts
-                    .filter((a) => a.status === "active")
-                    .map((alert) => (
+                    .filter((a: Alert) => a.status === "active")
+                    .map((alert: Alert) => (
                       <Alert
                         key={alert.id}
                         variant="destructive"
@@ -1260,7 +1260,7 @@ const PatientDetail = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {parameters.map((param) => (
+                          {parameters.map((param: Parameter) => (
                             <TableRow key={param.id}>
                               <TableCell>
                                 {format(
@@ -1426,7 +1426,7 @@ const PatientDetail = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {parameterLimits.map((limit) => (
+                        {parameterLimits.map((limit: ParameterLimit) => (
                           <TableRow key={limit.id}>
                             <TableCell>
                               <input 
@@ -1523,7 +1523,7 @@ const PatientDetail = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {alerts.map((alert) => (
+                      {alerts.map((alert: Alert) => (
                         <TableRow key={alert.id}>
                           <TableCell>
                             <input 
